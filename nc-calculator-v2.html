@@ -549,6 +549,12 @@
   .dnote{color:#aebdd1!important}
   .dsrc{margin:12px 0 0;font-size:11.5px;font-style:italic;color:#8fa4bf}
   @media(max-width:759px){ .dcols{grid-template-columns:minmax(0,1fr)} }
+
+  .plane.v-balloon{width:44px;height:58px;margin-top:-10px}
+  .plane.v-balloon .jet{display:none}
+  .plane.v-balloon .fl{transform-origin:50% 100%}
+  .vb[data-v=balloon] svg{width:16px;height:24px}
+  .vb[data-v=balloon] .fl{display:none}
 </style>
 </head>
 <body>
@@ -666,6 +672,7 @@
     ufo:`<svg class="wd" viewBox="0 0 60 34" aria-hidden="true"><path d="M20 15Q20 2.5 30 2.5T40 15Z" fill="#a9e4dc" opacity=".9"/><ellipse cx="30" cy="19" rx="27" ry="7.5" fill="#8d9fb5"/><ellipse cx="30" cy="17.2" rx="27" ry="6.2" fill="#c5d3e2"/><ellipse cx="30" cy="23" rx="9" ry="2.4" fill="#6b7d93"/><circle class="bl" cx="10" cy="19" r="1.7" fill="#f0c479"/><circle class="bl" cx="20" cy="21.6" r="1.7" fill="#f0c479"/><circle class="bl" cx="30" cy="22.4" r="1.7" fill="#f0c479"/><circle class="bl" cx="40" cy="21.6" r="1.7" fill="#f0c479"/><circle class="bl" cx="50" cy="19" r="1.7" fill="#f0c479"/></svg>`,
     hero:`<svg class="wd" viewBox="0 0 66 30" aria-hidden="true"><path class="cp" d="M31 10C22 3 11 8 1 4c5 6 5 13 2 22 10-4 21-3 29-8Z" fill="#2a9d8f"/><path d="M26 11Q40 8 48 12L50 16Q38 20 26 17Z" fill="#3a4656"/><path d="M26 12L7 14l-1 3.6 20-.6Z" fill="#2c3643"/><rect x="3.5" y="13.2" width="4.4" height="4.8" rx="1.6" fill="#d4a64a"/><path d="M46 12L60 10l1 3-14 3Z" fill="#3a4656"/><circle cx="61.4" cy="11.6" r="2.4" fill="#f2c9a5"/><circle cx="52" cy="11" r="4" fill="#f2c9a5"/><path d="M48 9.6Q52 3.6 56.2 9.2Q52 7.4 48 9.6Z" fill="#2e2018"/><rect x="26" y="12.6" width="3" height="4.4" fill="#d4a64a"/><circle cx="41.5" cy="13.4" r="2" fill="#d4a64a"/></svg>`,
     heli:`<svg class="wd" viewBox="0 0 70 36" aria-hidden="true"><path d="M13 20L3 17v3.5l10 3.5Z" fill="#aebdd1"/><path d="M3 17L1 9l5 1v7Z" fill="#8fa4bf"/><ellipse class="rot" cx="3" cy="13.5" rx="3.6" ry="3.6" fill="none" stroke="#e2e8f0" stroke-width=".9" opacity=".7"/><ellipse cx="29" cy="22" rx="18" ry="9" fill="#c9d6e4"/><path d="M36 15.5Q49 16.5 47 24H33Z" fill="#26405e"/><path d="M13 23H42" stroke="#2a9d8f" stroke-width="1.6" fill="none"/><rect x="27.6" y="10.5" width="2.6" height="5" fill="#8fa4bf"/><rect class="rot" x="3" y="8.6" width="52" height="2.2" rx="1.1" fill="#e2e8f0"/><path d="M16 33H44M21 29.5V33M39 29.5V33" stroke="#8fa4bf" stroke-width="1.7" fill="none" stroke-linecap="round"/></svg>`,
+    balloon:`<svg class="wd" viewBox="0 0 44 62" aria-hidden="true"><path d="M22 2C8 2 3 14 5 24C6 31 13 38 18 41H26C31 38 38 31 39 24C41 14 36 2 22 2Z" fill="#2a9d8f"/><path d="M22 2C13 7 10 27 18.5 41H21C15 27 16 9 22 2Z" fill="#1e4d8c"/><path d="M22 2C31 7 34 27 25.5 41H23C29 27 28 9 22 2Z" fill="#1e4d8c"/><path d="M22 2C20 12 20 30 21 41H23C24 30 24 12 22 2Z" fill="#e8c46a"/><ellipse cx="13.5" cy="16" rx="2.8" ry="7" fill="#fff" opacity=".18"/><path d="M18 41H26L25 44H19Z" fill="#1a2e4a"/><g class="fl"><path d="M20.4 47Q22 38 23.6 47Z" fill="#e8883a"/><path d="M21.2 47Q22 42 22.8 47Z" fill="#fff0c9"/></g><path d="M19 44L16 50M25 44L28 50" stroke="#8fa4bf" stroke-width=".9" fill="none"/><rect x="15" y="50" width="14" height="9" rx="1.5" fill="#a9784a"/><path d="M15 54H29" stroke="#7d5632" stroke-width=".9" fill="none"/></svg>`,
     car:`<svg class="wd" viewBox="0 0 66 32" aria-hidden="true"><g class="fl"><ellipse cx="17" cy="31" rx="7" ry="10" fill="#7fb8ff" opacity=".22"/><path d="M12.5 24Q17 42 21.5 24Z" fill="#e8883a"/><path d="M14.8 24Q17 34 19.2 24Z" fill="#fff0c9"/></g><g class="fl"><ellipse cx="49" cy="31" rx="7" ry="10" fill="#7fb8ff" opacity=".22"/><path d="M44.5 24Q49 42 53.5 24Z" fill="#e8883a"/><path d="M46.8 24Q49 34 51.2 24Z" fill="#fff0c9"/></g><path d="M4 21Q4 15.5 10 14.5L20 8.2Q22 7 25 7H42Q46 7 48 9L54 14.5Q62 15.5 62 21V23H4Z" fill="#c9d6e4"/><path d="M23 9.4H33V14.4H18.6ZM35 9.4H42.4L48.4 14.4H35Z" fill="#26405e"/><rect x="6" y="20" width="54" height="1.6" fill="#2a9d8f"/><rect x="58" y="17.2" width="4" height="2.4" rx="1" fill="#f0c479"/><rect x="4" y="17.2" width="3" height="2.4" rx="1" fill="#e07a6d"/><g class="wh"><circle cx="17" cy="23" r="5" fill="#1a2e4a"/><circle cx="17" cy="23" r="2" fill="#aebdd1"/><circle cx="49" cy="23" r="5" fill="#1a2e4a"/><circle cx="49" cy="23" r="2" fill="#aebdd1"/></g></svg>`
   };
   const EA='cubic-bezier(.55,0,.85,.55)';
@@ -692,15 +699,19 @@
       out:[[0,0,0,0,0,1,'o','ease-in'],[.35,0,0,150,0,1,1,'ease-in-out'],[.5,0,0,155,6,1,1,'ease-in-out'],[.8,0,.3,190,12,1.1,1,'ease-in'],[1,0,.6,260,14,1.3,0]],
       ret:[[0,.3,230,10,1.2,0,'ease-out'],[.5,.05,150,6,1,'o','ease-in-out'],[.85,0,12,0,1,'o','ease-out'],[1,0,0,0,1,'o']],
       say:['Rotors turning','Lifting vertically','Forward flight','Approach','Landed']},
+    balloon:{label:'Hot air balloon',hint:'the balloon',r0:0,w:44,wide:true,sk:.5,mode:'vert',D:3200,RET:2000,keepFly:true,
+      out:[[0,0,0,0,0,1,'o','ease-in'],[.3,0,0,60,-2,1,1,'ease-in-out'],[.55,0,.06,150,3,1.05,1,'ease-in-out'],[.8,0,.22,240,-3,.95,1,'ease-in-out'],[1,0,.4,330,2,.8,0]],
+      ret:[[0,.25,300,3,.8,0,'ease-out'],[.5,.1,150,-3,.95,'o','ease-in-out'],[.85,.02,25,2,1,'o','ease-in-out'],[1,0,0,0,1,'o']],
+      say:['Burner on','Rising gently','Drifting along','Descending','Landed softly']},
     car:{label:'Flying car',hint:'the flying car',r0:0,w:66,wide:true,sk:.5,mode:'vert',D:2400,RET:1400,keepFly:true,
       out:[[0,0,0,0,0,1,'o','ease-in-out'],[.3,0,0,70,0,1.05,1,'ease-in-out'],[.45,0,0,76,-2,1.05,1,'ease-in-out'],[.6,0,.08,72,3,1.05,1,'ease-in-out'],[.85,0,.4,120,-8,1.2,1,'ease-in'],[1,0,.75,190,-14,1.4,0]],
       ret:[[0,0,170,0,1.3,0,'ease-out'],[.65,0,12,0,1.05,'o','ease-in-out'],[1,0,0,0,1,'o']],
       say:['Wheels up!','Vertical lift','Cruise mode','Descending','Parked']}
   };
-  const VORDER=['plane','jet','ufo','hero','heli','car'];
+  const VORDER=['plane','jet','ufo','hero','heli','car','balloon'];
   let veh='plane';
   try{ const sv=localStorage.getItem('ncVeh'); if(sv && VEH[sv] && sv!=='santa') veh=sv; }catch(e){}
-  const effVid=xm=>(veh==='plane'&&xm)?'santa':veh;
+  const effVid=xm=>xm?'santa':veh;
 
   let tlState=null, selDay=null, flight=0, flying=false, planeTried=false, hintUsed=false;
 

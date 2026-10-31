@@ -555,6 +555,28 @@
   .plane.v-balloon .fl{transform-origin:50% 100%}
   .vb[data-v=balloon] svg{width:16px;height:24px}
   .vb[data-v=balloon] .fl{display:none}
+
+  .trees{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:-1;
+      -webkit-mask-image:linear-gradient(0deg,#000 45%,transparent 100%);mask-image:linear-gradient(0deg,#000 45%,transparent 100%)}
+  .trw{position:absolute;bottom:6px;width:auto;transform:translateX(-50%);filter:drop-shadow(0 6px 10px rgba(3,10,20,.45))}
+  .trw .tr{display:block;height:calc(var(--h) * 1px);width:auto;overflow:visible}
+  .trw .tw{animation:twk 1.6s ease-in-out infinite alternate}
+  @keyframes twk{from{opacity:.35}to{opacity:1}}
+  @media(max-width:559px){ .trw .tr{height:calc(var(--h) * .62px)} .trw.t2{display:none} }
+  @media(prefers-reduced-motion:reduce){ .trw .tw{animation:none} }
+
+  .defs>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;margin:0 0 6px;padding:6px 0;font-size:13px;font-weight:600;letter-spacing:.02em;color:#8fe6da;user-select:none}
+  .defs>summary::-webkit-details-marker{display:none}
+  .defs>summary::before{content:"";width:7px;height:7px;flex-shrink:0;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .2s ease;margin:0 2px 0 3px}
+  .defs[open]>summary::before{transform:rotate(45deg)}
+  .defs>summary:hover{color:#b9f3ea}
+  .defs>summary:focus-visible{outline:2px solid #8fe6da;outline-offset:2px;border-radius:6px}
+  .defs:not([open])>summary{margin-bottom:0}
+  .dbody{animation:dpin .25s ease both}
+  @media(prefers-reduced-motion:reduce){ .dbody{animation:none} .defs>summary::before{transition:none} }
+.defs>summary::after{content:"Show";margin-left:auto;font-size:12px;font-weight:400;color:#8fa4bf}
+  .defs[open]>summary::after{content:"Hide"}
+  .defs[open]>summary{margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -768,11 +790,27 @@
     tlState.xmas=xmas; tlState.pct=pct;
     const vid=effVid(xmas), V=VEH[vid], axv=V.wide?ax:50;
     const showHint = !planeTried && !hintUsed; hintUsed = true;
+    let trees='';
+    if(xmas){
+      const lights=[[30,13,0],[24,28,1],[38,30,2],[18,48,1],[30,46,0],[42,50,2],[12,70,2],[26,68,0],[38,72,1],[50,68,2],[20,78,1],[44,79,0]];
+      const LC=['#f0c479','#e8887a','#8fe6da'];
+      const tree=(i)=>'<svg class="tr" viewBox="0 0 60 92" aria-hidden="true">'
+        +'<rect x="26" y="82" width="8" height="10" rx="1" fill="#6b4a32"/>'
+        +'<polygon points="30,38 58,84 2,84" fill="#1f6b5a"/><polygon points="30,38 58,84 30,84" fill="#2a8a74"/>'
+        +'<polygon points="30,22 53,60 7,60" fill="#237a66"/><polygon points="30,22 53,60 30,60" fill="#2f9a82"/>'
+        +'<polygon points="30,7 47,36 13,36" fill="#2a8a74"/><polygon points="30,7 47,36 30,36" fill="#37a68d"/>'
+        +'<polygon points="30,7 36,18 24,18" fill="#f4f8fb" opacity=".9"/><polygon points="30,22 37,33 23,33" fill="#f4f8fb" opacity=".8"/><polygon points="30,38 39,52 21,52" fill="#f4f8fb" opacity=".75"/>'
+        +'<polygon points="30,0 31.8,4.4 36.4,4.6 32.8,7.4 34,12 30,9.4 26,12 27.2,7.4 23.6,4.6 28.2,4.4" fill="#f0c479"/>'
+        +lights.map((l,k)=>'<circle class="tw" cx="'+l[0]+'" cy="'+l[1]+'" r="1.7" fill="'+LC[l[2]]+'" style="animation-delay:-'+(((k+i)*0.37)%2).toFixed(2)+'s"/>').join('')
+        +'</svg>';
+      const spots=[[1,120,.8,'',0],[8.5,86,.55,'t2',1],[17,60,.4,'t2',2],[80,62,.4,'t2',3],[87,92,.55,'t2',4],[94.5,124,.8,'',5]];
+      trees='<div class="trees" aria-hidden="true">'+spots.map(sp=>'<span class="trw '+sp[3]+'" style="left:'+sp[0]+'%;--h:'+sp[1]+';opacity:'+sp[2]+'">'+tree(sp[4])+'</span>').join('')+'</div>';
+    }
     let snow='';
     if(xmas){ snow='<div class="snow" aria-hidden="true">'; for(let i=0;i<34;i++){ const sz=2+(i*7)%3, o=.35+((i*13)%5)/10; snow+='<i style="left:'+((i*29+7)%100)+'%;width:'+sz+'px;height:'+sz+'px;opacity:'+o+';animation-duration:'+(8+(i*5)%7)+'s;animation-delay:-'+((i*1.7)%12).toFixed(1)+'s;--dx:'+(((i%5)-2)*14)+'px"></i>'; } snow+='</div>'; }
 
 
-    return `<section class="card tl" aria-label="Timeline">${snow}<div class="floor" aria-hidden="true"></div>
+    return `<section class="card tl" aria-label="Timeline">${snow}<div class="floor" aria-hidden="true"></div>${trees}
       <div class="tl-top"><p class="tl-title">Timeline from the issue date, ${esc(fmt(issue))}</p><div class="today">${todayText}</div></div>
       <div class="ms">${tiles}</div>
       <div class="rwx"><div class="rw"><div class="lit go ${pct>=100?'full':''}" style="width:${pct}%;--to:${pct}%"></div><div class="selband"></div><div class="probe"><span class="pt"></span></div>
@@ -943,15 +981,15 @@
       def:`<p>Observations are recommendations providing opportunities for improvement. The management system that may be weak, cumbersome, redundant, overly complex, or in some other manner, may, in the opinion of the auditor, offer an opportunity for an organization to improve its current practice. An observation is not subject to any corrective actions unless the operator decides to improve. It is not required to report to CAAT on the implementation of actions further to an observation and CAAT will not monitor the implementation of these actions.</p>`,
       resp:`<p>An observation is not subject to any corrective actions. However, if an operator decides to accept the observation, the same process and timeline for submitting the corrective action for the 'Level 2 finding' shall apply.</p>`}
   };
-  let defLv=null;
+  let defLv=null; const defOpen={all:false};
   function defsHtml(m){
     const lvs=m.levels==='L1'?['l1']:['l2','obs'];
     if(lvs.indexOf(defLv)<0) defLv=lvs[0];
     const D=DEFS[defLv];
     const tabs=lvs.length>1?`<div class="dtabs" role="tablist" aria-label="Level definitions">${lvs.map(k=>`<button type="button" class="dtab" role="tab" data-act="deftab" data-lv="${k}" aria-selected="${k===defLv}">${DEFS[k].tab}</button>`).join('')}</div>`:'';
-    return `<div class="defs">${tabs}<p class="dtitle">${D.title}</p>
+    return `<details class="defs" data-k="all"${defOpen.all?' open':''}><summary>Definition and operator responsibility</summary>${tabs}<p class="dtitle">${D.title}</p>
       <div class="dcols"><div class="dcol"><h4>Definition and issuance by CAAT</h4>${D.def}</div><div class="dcol"><h4>Operator responsibility</h4>${D.resp}</div></div>
-      <p class="dsrc">Source: OPSM Chapter 8: AOC Management, (c) Non-Compliance Levels and Resolution Time Frames</p></div>`;
+      <p class="dsrc">Source: OPSM Chapter 8: AOC Management, (c) Non-Compliance Levels and Resolution Time Frames</p></details>`;
   }
 
   function applySel(){
@@ -988,6 +1026,7 @@
     const h=e.target.closest && e.target.closest('.tile[data-d],.mk[data-d]'); clearHl();
     if(h) outEl.querySelectorAll('[data-d="'+h.getAttribute('data-d')+'"]').forEach(x=>x.classList.add('hl'));
   });
+  outEl.addEventListener('toggle',e=>{ const d=e.target; if(d && d.matches && d.matches('details.defs')) defOpen.all=d.open; },true);
   outEl.addEventListener('mouseleave',clearHl);
   outEl.addEventListener('pointermove',e=>{
     if(e.pointerType!=='mouse'||reduceMotion()) return;

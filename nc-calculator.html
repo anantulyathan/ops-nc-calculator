@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPS NC Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1a2e4a; --navy-2:#223a5c; --blue:#1e4d8c; --blue-mid:#2563a8;
+    --teal:#2a9d8f; --teal-lt:#3bbfb0;
+    --ink:#2d3748; --grey-mid:#4a5568; --grey-soft:#5b6b80; --line:#e2e8f0; --grey-pale:#f0f4f8;
+    --white:#ffffff; --red:#c0392b; --amber:#8f5f0f; --green:#356b4e;
+    --shadow:0 1px 2px rgba(26,46,74,.06), 0 8px 24px rgba(26,46,74,.07);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;font-family:'Inter',system-ui,sans-serif;color:var(--ink);
+       background:radial-gradient(900px 500px at 12% 18%,rgba(42,157,143,.07),transparent 60%),
+                  radial-gradient(900px 600px at 92% 40%,rgba(30,77,140,.08),transparent 60%),
+                  linear-gradient(180deg,#e6edf5 0%,#f0f4f8 45%,#e9eff6 100%);background-color:#eaf0f6;min-height:100vh;
+       font-feature-settings:'tnum' 1,'cv11' 1;padding-bottom:env(safe-area-inset-bottom);line-height:1.45}
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+  :focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+  /* Header */
+  header{position:relative;overflow:hidden;color:#fff;padding:22px 16px 88px;
+         background:radial-gradient(700px 260px at 88% -10%,rgba(59,191,176,.38),transparent 65%),
+                    radial-gradient(600px 300px at 0% 120%,rgba(37,99,168,.55),transparent 65%),
+                    linear-gradient(135deg,#142640 0%,#1a2e4a 50%,#1e4d8c 130%)}
+  header::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+         background:repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 1px,transparent 1px 56px)}
+  header .wrap{position:relative;z-index:1}
+  .wrap{max-width:1040px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:14px}
+  .mark{width:42px;height:42px;border-radius:12px;background:linear-gradient(145deg,var(--teal-lt),var(--teal) 55%,#23857a);display:grid;place-items:center;flex-shrink:0;
+        box-shadow:0 6px 16px rgba(10,24,44,.35),inset 0 1px 0 rgba(255,255,255,.35)}
+  .mark svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .brand h1{margin:0;font-size:17px;font-weight:600;letter-spacing:-.01em;line-height:1.25}
+  .brand p{margin:3px 0 0;font-size:13px;color:#aebdd1;font-weight:400}
+  .accent{height:3px;background:linear-gradient(90deg,var(--teal),var(--teal-lt))}
+
+  main{position:relative;z-index:2;margin:-60px auto 0;padding:0 16px 48px;display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+  main > *, #out > *{max-width:1040px;width:100%;margin-left:auto;margin-right:auto}
+  .card{background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);border-radius:16px;
+        box-shadow:0 1px 2px rgba(26,46,74,.06),0 10px 30px rgba(26,46,74,.10);border:1px solid rgba(255,255,255,.9);
+        outline:1px solid rgba(26,46,74,.05);outline-offset:-1px}
+
+  /* Controls */
+  .controls{padding:18px;display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+  .field label{display:block;font-size:13px;font-weight:500;color:var(--grey-mid);margin-bottom:6px}
+  input[type=date]{width:100%;height:52px;padding:0 14px;border:1.5px solid var(--line);border-radius:10px;font:inherit;font-size:17px;font-weight:600;
+       color:var(--navy);background:#fff;transition:border-color .15s,box-shadow .15s}
+  input[type=date]:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 4px rgba(42,157,143,.15)}
+  .switch-row{display:flex;align-items:center;justify-content:space-between;gap:14px;height:52px;padding:0 14px;border:1.5px solid var(--line);border-radius:10px;cursor:pointer}
+  .switch-row b{display:block;font-size:14px;font-weight:600;color:var(--navy);line-height:1.2}
+  .switch-row small{display:block;font-size:12px;color:var(--grey-soft);line-height:1.2;margin-top:2px}
+  .sw{position:relative;width:46px;height:28px;flex-shrink:0}
+  .sw input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:2}
+  .sw i{position:absolute;inset:0;background:#cbd5e0;border-radius:14px;transition:background .2s}
+  .sw i::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .sw input:checked + i{background:linear-gradient(90deg,var(--teal),var(--teal-lt))}
+  .sw input:checked + i::after{transform:translateX(18px)}
+  .sw input:focus-visible + i{outline:2px solid var(--teal);outline-offset:2px}
+  .btn{height:52px;padding:0 20px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--grey-mid);font:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:border-color .15s,color .15s}
+  .btn:hover{border-color:var(--blue-mid);color:var(--blue)}
+  .dategroup{display:flex;gap:8px}
+  .dategroup input{flex:1;min-width:0}
+  .today-btn{flex-shrink:0;padding:0 16px;color:#fff;border-color:transparent;background:linear-gradient(135deg,#23857a,#1c6f65);font-weight:600;box-shadow:0 2px 8px rgba(28,111,101,.3)}
+  .today-btn:hover{color:#fff;border-color:transparent;background:linear-gradient(135deg,#1f7a6f,#175d55)}
+
+  /* Timeline: runway */
+  .tl{position:relative;overflow:hidden;color:#fff;padding:24px 22px 26px;border:0;outline:0;
+      background:radial-gradient(520px 240px at 100% 0%,rgba(59,191,176,.22),transparent 65%),
+                 radial-gradient(420px 260px at 0% 110%,rgba(37,99,168,.35),transparent 65%),
+                 linear-gradient(145deg,#12233b 0%,#1a2e4a 55%,#1d4276 135%);
+      box-shadow:0 1px 2px rgba(26,46,74,.1),0 16px 40px rgba(18,35,59,.28)}
+  .tl-title{font-size:13px;font-weight:500;color:#9fb3cc;margin:0 0 14px}
+  .tl-top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+  .big{display:flex;align-items:center;gap:16px}
+  .big .n{font-size:60px;font-weight:700;letter-spacing:-.045em;line-height:.95;color:#fff;
+          background:linear-gradient(180deg,#ffffff 20%,#a9c8ea 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .big .n.word{font-size:36px;letter-spacing:-.03em}
+  .big .u b{display:block;font-size:16px;font-weight:600;line-height:1.3;max-width:240px}
+  .big .u span{display:block;margin-top:2px;font-size:13px;color:#9fb3cc}
+  .tl .today{font-size:13px;color:#9fb3cc;padding:7px 12px;border-radius:20px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+  .tl .today b{color:#6fd6c9;font-weight:600}
+
+  .rwx{position:relative;margin:92px 9px 124px}
+  .rw{position:relative;height:46px;border-radius:9px;
+      background:linear-gradient(180deg,#0a1729 0%,#12253f 100%);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.09),inset 0 2px 6px rgba(0,0,0,.45),0 12px 26px rgba(0,0,0,.35)}
+  .rw::before{content:"";position:absolute;left:8px;top:7px;bottom:7px;width:24px;
+      background:repeating-linear-gradient(0deg,rgba(255,255,255,.6) 0 3px,transparent 3px 7px)}
+  .rw::after{content:"";position:absolute;left:44px;right:12px;top:50%;height:2px;transform:translateY(-50%);
+      background:repeating-linear-gradient(90deg,rgba(255,255,255,.38) 0 14px,transparent 14px 28px)}
+  .lit{position:absolute;left:0;top:0;bottom:0;border-radius:9px 0 0 9px;transition:width .3s ease;
+      background:linear-gradient(90deg,rgba(42,157,143,.12),rgba(59,191,176,.5));box-shadow:0 0 24px rgba(59,191,176,.32)}
+  .lit.full{border-radius:9px}
+  .plane{position:absolute;top:50%;width:34px;height:34px;z-index:3;transform:translate(-50%,-50%) rotate(90deg);transition:left .3s ease;
+      filter:drop-shadow(0 4px 7px rgba(0,0,0,.55))}
+  .plane svg{width:100%;height:100%;fill:#fff;display:block}
+  .plane.idle{opacity:.55}
+  .plane .beacon{position:absolute;left:50%;top:46%;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;background:#ee8c80;
+      box-shadow:0 0 6px 2px rgba(238,140,128,.7);animation:blink 1.1s ease-in-out infinite}
+
+  /* movement behind the plane */
+  .lit{overflow:hidden}
+  .lit::before{content:"";position:absolute;inset:0;
+      background:repeating-linear-gradient(100deg,rgba(255,255,255,0) 0 14px,rgba(255,255,255,.2) 14px 22px,rgba(255,255,255,0) 22px 40px);
+      background-size:80px 100%;animation:flow 1s linear infinite;
+      -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 75%);mask-image:linear-gradient(90deg,transparent 0,#000 75%)}
+  .lit::after{content:"";position:absolute;right:0;top:0;bottom:0;width:70px;
+      background:linear-gradient(90deg,rgba(159,236,226,0),rgba(159,236,226,.5));animation:head 1.6s ease-in-out infinite}
+  @keyframes flow{to{background-position:80px 0}}
+  @keyframes head{0%,100%{opacity:.55}50%{opacity:1}}
+
+  /* runway lights */
+  .edge{position:absolute;left:44px;right:14px;height:6px;z-index:1;pointer-events:none;
+      background:radial-gradient(circle at 50% 50%,rgba(246,231,200,.38) 0 1.5px,transparent 2.4px) 0 0/22px 6px repeat-x}
+  .edge.top{top:4px} .edge.bot{bottom:4px}
+  .edge::after{content:"";position:absolute;inset:0;
+      background:radial-gradient(circle at 50% 50%,#fff4d8 0 1.7px,transparent 2.8px) 0 0/22px 6px repeat-x;
+      filter:drop-shadow(0 0 3px rgba(255,226,170,.95));
+      -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 2.5%,transparent 5%);mask-image:linear-gradient(90deg,transparent 0,#000 2.5%,transparent 5%);
+      -webkit-mask-size:300% 100%;mask-size:300% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+      animation:chase 2.2s linear infinite}
+  @keyframes chase{from{-webkit-mask-position:10% 0;mask-position:10% 0}to{-webkit-mask-position:-50% 0;mask-position:-50% 0}}
+  .tlight{position:absolute;top:7px;bottom:7px;width:6px;z-index:1;pointer-events:none;
+      background:radial-gradient(circle at 50% 50%,var(--lc) 0 2px,transparent 3.2px) 0 0/6px 11px repeat-y;
+      filter:drop-shadow(0 0 3px var(--lc));animation:blink 1.2s ease-in-out infinite}
+  .tlight.g{left:1px;--lc:#6fcf9d} .tlight.r{right:1px;--lc:#ee8c80;animation-delay:.6s}
+  @keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+
+  /* issue date start line */
+  .sm{position:absolute;left:0;top:-4px;width:3px;height:92px;transform:translateX(-50%);z-index:2;border-radius:2px;
+      background:linear-gradient(180deg,#8fe6da 0,#8fe6da 54px,rgba(111,214,201,0) 100%);box-shadow:0 0 10px rgba(111,214,201,.55)}
+  .sm .t{position:absolute;left:0;top:84px;white-space:nowrap;font-size:12px;line-height:1.3;color:#aebdd1;transform:none}
+  .sm .t b{display:block;font-size:13px;font-weight:600;color:#fff}
+  @media(prefers-reduced-motion:reduce){ .lit::before,.lit::after,.edge::after,.tlight,.plane .beacon{animation:none!important} .tlight,.plane .beacon{opacity:.8} .edge::after{-webkit-mask-image:none;mask-image:none;opacity:.5} }
+
+  .mk{position:absolute;left:0;top:0;height:0;--mc:#8bb8ec;transition:left .3s ease;z-index:2}
+  .mk.c-red{--mc:#ee8c80} .mk.c-navy{--mc:#e2e8f0}
+  .mk .pin{position:absolute;left:0;top:-24px;width:2px;height:24px;transform:translateX(-50%);background:linear-gradient(180deg,var(--mc),rgba(255,255,255,0))}
+  .mk .pin::before{content:"";position:absolute;left:50%;top:-6px;width:13px;height:13px;border-radius:50%;transform:translateX(-50%);
+      border:2px solid var(--mc);background:#12233b}
+  .mk.done .pin::before{background:var(--mc);box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+  .mk .lab,.mk .dayl{position:absolute;white-space:nowrap;transform:translateX(-50%);text-align:center;line-height:1.3}
+  .mk .lab{bottom:34px;font-size:12px;color:#aebdd1}
+  .mk .lab b{display:block;font-size:13px;font-weight:600;color:#fff}
+  .mk .dayl{top:56px;font-size:12px;font-weight:500;color:#8fa4bf}
+  .mk.first .lab,.mk.first .dayl{transform:translateX(-12px);text-align:left}
+  .mk.last .lab,.mk.last .dayl{transform:translateX(calc(-100% + 12px));text-align:right}
+  .mk.done .lab b{color:#cfe0f3}
+  @media(max-width:559px){
+    .rwx{margin-top:136px}
+    .mk.hi .pin{top:-62px;height:62px}
+    .mk.hi .lab{bottom:72px}
+  }
+  @media(max-width:359px){ .mk .lab{font-size:11px} .mk .lab b{font-size:12px} .big .n{font-size:52px} }
+
+  /* Levels */
+  .levels{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+  .lv{padding:0 22px 0;display:flex;flex-direction:column;overflow:hidden}
+  .lv-top{margin:0 -22px 4px;padding:20px 22px 14px;background:linear-gradient(160deg,var(--t1),var(--t2) 60%,rgba(255,255,255,0))}
+  .l1{--t1:#f7dedb;--t2:#fbefed} .l2{--t1:#d9e5f5;--t2:#ebf1f9} .l3{--t1:#f6e8cc;--t2:#fbf4e3}
+  .lv-head{display:flex;align-items:center;gap:12px}
+  .badge{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;
+         box-shadow:0 4px 10px rgba(26,46,74,.22),inset 0 1px 0 rgba(255,255,255,.3)}
+  .b1{background:linear-gradient(145deg,#d9503f,#a93226)} .b2{background:linear-gradient(145deg,#2f6fba,#1a4380)} .b3{background:linear-gradient(145deg,#d19a35,#9c6a16)}
+  .lv h3{margin:0;font-size:16px;font-weight:600;color:var(--navy);letter-spacing:-.005em}
+  .lv .desc{margin:10px 0 0;font-size:13px;color:var(--grey-mid);line-height:1.5;min-height:39px}
+  .row{padding:14px 0;border-top:1px solid var(--line)}
+  .rl{font-size:13px;color:var(--grey-mid);font-weight:500}
+  .rd{font-size:24px;font-weight:600;color:var(--navy);letter-spacing:-.02em;margin:2px 0 4px}
+  .rs{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500}
+  .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--grey-soft)}
+  .ok .dot{background:var(--green)} .ok .rs{color:var(--green)}
+  .warn .dot{background:var(--amber)} .warn .rs{color:var(--amber)}
+  .over .dot{background:var(--red)} .over .rs{color:var(--red)}
+  .na .rs{color:var(--grey-soft)}
+  .fm{margin-top:4px;font-size:11.5px;color:var(--grey-soft)}
+  .row.ext{background:linear-gradient(135deg,#e3ecf8 0%,#f1f5fb 70%,#f8fafc 100%);margin:0 -22px;padding:14px 22px;border-top-color:#cfdcee}
+  .foot{margin:auto -22px 0;padding:13px 22px;border-top:1px solid var(--line);font-size:12.5px;line-height:1.5;color:var(--grey-mid);background:linear-gradient(180deg,#f8fafc,#eef3f8)}
+  .foot.crit{color:#8a2c1f;background:linear-gradient(180deg,#fbf1ef,#f6e0dc);border-top-color:#efcfca}
+  .foot b{font-weight:600}
+
+  .policy{padding:16px 20px;border-left:4px solid var(--teal);border-radius:12px;background:linear-gradient(90deg,#e4f3f1 0%,#ffffff 45%);box-shadow:0 1px 2px rgba(26,46,74,.06),0 8px 22px rgba(26,46,74,.08);font-size:13.5px;color:var(--grey-mid)}
+  .policy b{color:var(--navy)}
+  .policy ul{margin:8px 0 0;padding-left:20px;line-height:1.6}
+
+  .empty{padding:48px 20px;text-align:center}
+  .empty svg{width:40px;height:40px;stroke:var(--teal);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .empty h3{margin:12px 0 4px;color:var(--navy);font-size:17px}
+  .empty p{margin:0;color:var(--grey-soft);font-size:14px}
+
+  @media(min-width:760px){
+    header{padding:26px 24px 96px}
+    main{padding:0 24px 56px}
+    .controls{grid-template-columns:minmax(260px,1fr) 1.4fr auto;align-items:end;padding:22px}
+    .levels{grid-template-columns:repeat(3,1fr);align-items:stretch}
+    .tl{padding:26px 30px 22px}
+  }
+  @media(prefers-reduced-motion:reduce){ *{transition:none!important} }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap brand">
+    <div class="mark"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+    <div>
+      <h1>Flight Operations Standards Department (OPS) NC Calculator</h1>
+      <p>Pick the issue date to see the deadlines for every finding level.</p>
+    </div>
+  </div>
+</header>
+<div class="accent"></div>
+
+<main>
+  <section class="card controls" aria-label="Inputs">
+    <div class="field">
+      <label for="issue">Finding issue date</label>
+      <div class="dategroup">
+        <input type="date" id="issue">
+        <button class="btn today-btn" id="todayBtn" type="button" aria-label="Set issue date to today">Today</button>
+      </div>
+    </div>
+    <label class="switch-row" for="extChk">
+      <span><b>Calculate extension limit</b><small>Adds the maximum extension date to L2 and L3</small></span>
+      <span class="sw"><input type="checkbox" id="extChk" role="switch"><i></i></span>
+    </label>
+    <button class="btn" id="resetBtn" type="button">Reset</button>
+  </section>
+
+  <div id="out" style="display:contents"></div>
+</main>
+
+<script>
+(function(){
+  const LEVELS = [
+    {key:'l1', badge:'b1', short:'L1', name:'Level 1',     desc:'Significant safety impact. Immediate action required.', capDays:3,  impDays:3,  maxTotal:null, voluntary:false},
+    {key:'l2', badge:'b2', short:'L2', name:'Level 2',     desc:'Non-compliance with safety standards.',                  capDays:30, impDays:60, maxTotal:120,  voluntary:false},
+    {key:'l3', badge:'b3', short:'L3', name:'Observation', desc:'Voluntary improvement suggestion.',                      capDays:30, impDays:60, maxTotal:120,  voluntary:true}
+  ];
+
+  const $ = id => document.getElementById(id);
+  const issueEl=$('issue'), extChk=$('extChk'), outEl=$('out');
+
+  function todayStr(){
+    const d=new Date();
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+  function parseLocal(s){ const p=s.split('-').map(Number); return new Date(p[0],p[1]-1,p[2]); }
+  function addDays(d,n){ const o=new Date(d); o.setDate(o.getDate()+n); return o; }
+  function fmt(d){ return new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric'}).format(d); }
+  function daysLeft(d){
+    const t=new Date(); t.setHours(0,0,0,0);
+    const x=new Date(d); x.setHours(0,0,0,0);
+    return Math.ceil((x.getTime()-t.getTime())/86400000);
+  }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function plural(n,w){ return n+' '+w+(n===1?'':'s'); }
+
+  function statusFor(date){
+    const n=daysLeft(date);
+    if(n<0)   return {cls:'over', text:plural(Math.abs(n),'day')+' overdue'};
+    if(n===0) return {cls:'warn', text:'Due today'};
+    if(n<=7)  return {cls:'warn', text:plural(n,'day')+' left'};
+    return {cls:'ok', text:plural(n,'day')+' left'};
+  }
+
+  function row(label,date,o){
+    let cls,text;
+    if(o.voluntary){ cls='na'; text='Voluntary if acted upon'; }
+    else { const s=statusFor(date); cls=s.cls; text=s.text; }
+    return `<div class="row ${cls} ${o.ext?'ext':''}">
+      <div class="rl">${esc(label)}</div>
+      <div class="rd">${esc(fmt(date))}</div>
+      <div class="rs"><span class="dot"></span><span>${esc(text)}</span></div>
+      <div class="fm mono">${esc(o.formula)}</div>
+    </div>`;
+  }
+
+  function timeline(issue,extOn){
+    const maxDay = extOn ? 120 : 60;
+    const short = d => new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short'}).format(d);
+    const marks = [
+      {d:3,  name:'L1',             color:'c-red', next:'L1 CAP and implementation'},
+      {d:30, name:'CAP',            color:'',      next:'CAP for L2 and L3'},
+      {d:60, name:'Implementation', color:'',      next:'Implementation for L2 and L3'}
+    ];
+    if(extOn) marks.push({d:120, name:'Extension limit', color:'c-navy', next:'the maximum extension date for L2 and L3'});
+    const elapsed = -daysLeft(issue);
+    const dl = d => daysLeft(addDays(issue,d));
+
+    /* headline */
+    let big='', todayText='';
+    if(elapsed<0){
+      const n=-elapsed;
+      big=`<div class="big"><div class="n">${n}</div><div class="u"><b>${n===1?'day':'days'} until the issue date</b><span>${esc(fmt(issue))}</span></div></div>`;
+    } else {
+      todayText = elapsed===0 ? 'Today is the <b>issue date</b>' : 'Today is <b>day '+elapsed+'</b> since issue';
+      const nxt = marks.find(m=>dl(m.d)>=0);
+      if(nxt){
+        const n=dl(nxt.d), due=fmt(addDays(issue,nxt.d));
+        big = n===0
+          ? `<div class="big"><div class="n word">Today</div><div class="u"><b>${esc(nxt.next)} due</b><span>${esc(due)}</span></div></div>`
+          : `<div class="big"><div class="n">${n}</div><div class="u"><b>${n===1?'day':'days'} until ${esc(nxt.next)}</b><span>Due ${esc(due)}</span></div></div>`;
+      } else {
+        big=`<div class="big"><div class="u"><b>All deadlines on this timeline have passed</b><span>Last date was ${esc(fmt(addDays(issue,maxDay)))}</span></div></div>`;
+      }
+    }
+
+    /* runway */
+    let pct=0, planeCls='plane';
+    if(elapsed<0){ pct=0; planeCls+=' idle'; }
+    else if(elapsed>=maxDay){ pct=100; }
+    else { pct=elapsed/maxDay*100; }
+    const mk = marks.map((m,i)=>{
+      const p=m.d/maxDay*100;
+      const pos = p<10 ? 'first' : (p>88 ? 'last' : '');
+      const done = dl(m.d)<0 ? 'done' : '';
+      const hi = i%2===1 ? 'hi' : '';
+      return `<div class="mk ${m.color} ${pos} ${done} ${hi}" style="left:${p}%"><span class="pin"></span>
+        <span class="lab"><b>${esc(m.name)}</b>${esc(short(addDays(issue,m.d)))}</span>
+        <span class="dayl">Day ${m.d}</span></div>`;
+    }).join('');
+    const plane=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>`;
+    return `<section class="card tl" aria-label="Timeline">
+      <p class="tl-title">Timeline from the issue date, ${esc(fmt(issue))}</p>
+      <div class="tl-top">${big}${todayText?`<div class="today">${todayText}</div>`:''}</div>
+      <div class="rwx"><div class="rw"><div class="lit ${pct>=100?'full':''}" style="width:${pct}%"></div>
+        <div class="edge top"></div><div class="edge bot"></div><div class="tlight g"></div><div class="tlight r"></div>
+        <div class="sm"><span class="t"><b>Issue date</b>${esc(fmt(issue))}</span></div>
+        <div class="${planeCls}" style="left:${pct}%">${plane}<i class="beacon"></i></div>${mk}</div></div>
+    </section>`;
+  }
+
+  function render(){
+    const v=issueEl.value;
+    if(!v){
+      outEl.innerHTML=`<section class="card empty"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <h3>Choose an issue date</h3><p>The deadlines for Level 1, Level 2 and Observation appear here.</p></section>`;
+      return;
+    }
+    const issue=parseLocal(v);
+    const extOn=extChk.checked;
+    let cols='';
+    LEVELS.forEach(L=>{
+      const cap=addDays(issue,L.capDays), imp=addDays(issue,L.impDays);
+      let h=`<article class="card lv ${L.key}"><div class="lv-top"><div class="lv-head"><span class="badge ${L.badge}">${L.short}</span><h3>${esc(L.name)}</h3></div>
+        <p class="desc">${esc(L.desc)}</p></div>`;
+      h+=row('CAP due date',cap,{voluntary:L.voluntary,formula:'Issue date + '+L.capDays+' days'});
+      h+=row('Implementation due date',imp,{voluntary:L.voluntary,formula:'Issue date + '+L.impDays+' days'});
+      if(L.key!=='l1' && extOn){
+        h+=row('Maximum extension date',addDays(issue,L.maxTotal),{ext:true,formula:'Issue date + '+L.maxTotal+' days'});
+      }
+      if(L.key==='l1'){
+        h+=`<div class="foot crit"><b>Non-extendable.</b> If implementation fails, operations may be suspended immediately.</div>`;
+      } else if(L.key==='l3'){
+        h+=`<div class="foot">Follows the Level 2 (30/60 day) timeline if responded to by the operator.</div>`;
+      } else {
+        h+=`<div class="foot">CAP due date is non-extendable.</div>`;
+      }
+      h+=`</article>`;
+      cols+=h;
+    });
+    let html=timeline(issue,extOn)+`<div class="levels">${cols}</div>`;
+    if(extOn){
+      html+=`<aside class="policy"><b>Extension policy for L2 and L3</b><ul>
+        <li>Max 3 extensions may be granted.</li>
+        <li>Each extension requires valid justification and approval.</li>
+        <li>Total time cannot exceed 120 days from original issue date.</li></ul></aside>`;
+    }
+    outEl.innerHTML=html;
+  }
+
+  issueEl.addEventListener('input',render);
+  issueEl.addEventListener('change',render);
+  extChk.addEventListener('change',render);
+  $('todayBtn').addEventListener('click',()=>{ issueEl.value=todayStr(); render(); });
+  $('resetBtn').addEventListener('click',()=>{ issueEl.value=todayStr(); extChk.checked=false; render(); });
+
+  issueEl.value=todayStr();
+  render();
+})();
+</script>
+</body>
+</html>

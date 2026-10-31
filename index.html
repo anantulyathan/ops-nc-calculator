@@ -1864,7 +1864,16 @@
   window.addEventListener('resize',()=>placeTag());
   function takeOff(plane){
     if(flying||!plane.isConnected) return;
-    trackTag(0); launch(plane);
+    const tl=plane.closest('.tl'), ban=tl.querySelector('.banner'), rw=plane.closest('.rw');
+    const token=++flight; flying=true; planeTried=true; plane.classList.add('known');
+    const ph=rw.querySelector('.phint'); if(ph) ph.remove();
+    let n=3;
+    const tick=()=>{
+      if(token!==flight || !plane.isConnected) return;
+      if(n>0){ ban.textContent='Take-off in '+n; ban.classList.add('show'); n--; setTimeout(tick,1000); }
+      else { ban.classList.remove('show'); flying=false; launch(plane); }
+    };
+    tick(); trackTag(0);
   }
   function launch(plane){
     if(flying||!plane.isConnected) return;

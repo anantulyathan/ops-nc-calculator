@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OPS NC Calculator V2</title>
+<title>OPS Non-Compliance (NC) Calculator V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -528,13 +528,34 @@
   .tile.hl,.tile:hover{transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-2px);transition:transform .08s linear,background .2s ease,box-shadow .2s ease,filter .2s ease}
   .tile.sel{transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-3px);box-shadow:inset 0 0 0 2px var(--mc),0 16px 30px rgba(4,12,24,.45)}
   @media(prefers-reduced-motion:reduce){ .tile.hl,.tile:hover,.tile.sel{transform:translateY(-2px)} }
+  .helpnote{max-width:1040px;margin:-24px auto 0;padding:0 16px 40px;text-align:center}
+  .helpnote p{margin:0;padding-top:16px;border-top:1px solid rgba(26,46,74,.12);font-size:12.5px;line-height:1.5;color:var(--grey-soft)}
+  .helpnote a{color:var(--blue);font-weight:500;text-decoration:none;border-bottom:1px solid rgba(30,77,140,.3)}
+  .helpnote a:hover{color:var(--blue-mid);border-bottom-color:currentColor}
+
+  .defs{flex-basis:100%;margin-top:2px;padding-top:14px;border-top:1px solid rgba(255,255,255,.14)}
+  .dtabs{display:flex;gap:6px;margin-bottom:12px}
+  .dtab{font:inherit;font-size:12.5px;font-weight:600;padding:6px 14px;border-radius:8px;border:0;cursor:pointer;color:#cfe0f3;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+  .dtab:hover{background:rgba(255,255,255,.14)}
+  .dtab[aria-selected="true"]{background:rgba(59,191,176,.25);color:#fff;box-shadow:inset 0 0 0 1.5px rgba(143,230,218,.65)}
+  .dtitle{margin:0 0 10px;font-size:14px;font-weight:600;color:#fff}
+  .dcols{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:20px}
+  .dcol h4{margin:0 0 6px;font-size:12px;font-weight:600;letter-spacing:.03em;color:#8fe6da}
+  .dcol p,.dcol li{margin:0 0 8px;font-size:13px;line-height:1.55;color:#d6e2f0}
+  .dcol b{color:#fff;font-weight:600}
+  .dl{list-style:none;margin:0 0 8px;padding:0}
+  .dl li{display:flex;gap:8px}
+  .dl .dn{flex-shrink:0;color:#8fa4bf}
+  .dnote{color:#aebdd1!important}
+  .dsrc{margin:12px 0 0;font-size:11.5px;font-style:italic;color:#8fa4bf}
+  @media(max-width:759px){ .dcols{grid-template-columns:minmax(0,1fr)} }
 </style>
 </head>
 <body>
 <header>
   <div class="wrap brand">
     <div class="brand-txt">
-      <h1>Flight Operations Standards Department (OPS) NC Calculator</h1>
+      <h1>Flight Operations Standards Department (OPS) Non-Compliance (NC) Calculator</h1>
       <span class="vtag">Version 2</span>
       <p>Pick the issue date to see the deadlines for every finding level.</p>
     </div>
@@ -561,6 +582,7 @@
 
   <div id="out" style="display:contents"></div>
 </main>
+<footer class="helpnote"><p>Having trouble using the app, or seeing an error? Please contact HCT directly at <a href="mailto:anan.t@caat.or.th">anan.t@caat.or.th</a></p></footer>
 
 <div id="printSheet" aria-hidden="true"></div>
 
@@ -686,7 +708,7 @@
     const maxDay = extOn ? 120 : 60;
     const short = d => new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short'}).format(d);
     const marks = [
-      {d:3,  gate:'L1', gx:' deadline', sub:'',          levels:'L1',        ms:'CAP and implementation', color:'c-red', next:'L1 CAP and implementation', note:'Non-extendable. If implementation fails, operations may be suspended immediately.'},
+      {d:3,  gate:'CAP', gx:'', sub:'L1',          levels:'L1',        ms:'CAP', color:'c-red', next:'L1 CAP', note:'Non-extendable. If implementation fails, operations may be suspended immediately.'},
       {d:30, gate:'CAP',            sub:'L2 and OBS', levels:'L2 and OBS', ms:'CAP',                    color:'',      next:'CAP for L2 and OBS', note:'CAP due date is non-extendable.'},
       {d:60, gate:'Implementation', sub:'L2 and OBS', levels:'L2 and OBS', ms:'Implementation',         color:'',      next:'Implementation for L2 and OBS', note:''}
     ];
@@ -764,7 +786,7 @@
     const f=d=>fmt(addDays(issue,d));
     const ext=extOn?['Maximum extension: '+f(120)]:[];
     const out=[];
-    if(sel.l1) out.push({title:'Level 1 (L1)',lines:['CAP: '+f(3),'Implementation: '+f(3),'Non-extendable']});
+    if(sel.l1) out.push({title:'Level 1 (L1)',lines:['CAP: '+f(3),'Non-extendable']});
     if(sel.l2) out.push({title:'Level 2 (L2)',lines:['CAP: '+f(30),'Implementation: '+f(60)].concat(ext)});
     if(sel.l3) out.push({title:'Observation (OBS)',lines:['Voluntary. If acted upon, follows the Level 2 timeline.','CAP: '+f(30),'Implementation: '+f(60)].concat(ext)});
     return out;
@@ -778,7 +800,7 @@
   function printHtml(issue,extOn,secs){
     return '<p class="po">Flight Operations Standards Department (OPS)</p><h1>Finding deadlines</h1><p class="pm">Issue date: <b>'+esc(fmt(issue))+'</b></p>'+
       secs.map(s=>'<h2>'+esc(s.title)+'</h2><ul>'+s.lines.map(l=>'<li>'+esc(l)+'</li>').join('')+'</ul>').join('')+
-      '<p class="pf">Prepared with the OPS NC Calculator on '+esc(fmt(new Date()))+'.</p>';
+      '<p class="pf">Prepared with the OPS Non-Compliance (NC) Calculator on '+esc(fmt(new Date()))+'.</p>';
   }
   function shareCard(){
     const chips=[['l1','L1','Level 1','b1'],['l2','L2','Level 2','b2'],['l3','OBS','Observation','b3']].map(c=>
@@ -885,6 +907,42 @@
   const wkShort=new Intl.DateTimeFormat('en-GB',{weekday:'short'});
   const reduceMotion=()=>!!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
 
+
+  /* Definitions: OPSM Chapter 8: AOC Management, (c) Non-Compliance Levels and Resolution Time Frames */
+  const RESUB='In the case of unsatisfactory CAP responses, the operator will be required to resubmit their CAPs within the allowable timeframe and within 3 allowable CAP response attempts.';
+  const DEFS={
+    l1:{tab:'L1',title:'Level 1 Finding (L1)',
+      def:`<p>A level 1 finding shall be issued by the competent authority when any significant Non-Compliance is detected with the applicable requirements, with the organization's procedures and manuals or with the terms of an approval, certificate, specialized operation authorization or with the content of a declaration <b>which lowers safety or seriously endangers flight safety.</b></p>
+        <p>The level 1 findings shall include, but are not limited to:</p>
+        <ol class="dl">
+          <li><span class="dn">(1)</span><span>Failure to give the competent authority access to the facilities or *documents of the organization;</span></li>
+          <li><span class="dn">(2)</span><span>Obtaining or maintaining the validity of the organization certificate or specific approvals by falsification of submitted documentary evidence;</span></li>
+          <li><span class="dn">(3)</span><span>Evidence of malpractice or fraudulent use of the organization's certificate or specific approvals;</span></li>
+          <li><span class="dn">(4)</span><span>The lack of an accountable manager.</span></li>
+          <li><span class="dn">(5)</span><span>The absence (omission, not addressed) or total breakdown (commission, failure, not implemented) of a system to meet a specified requirement.<br>Several level 2 non-compliance against one requirement, or requirements for a same topic can represent a total breakdown of the system and thus be considered as a level 1 non-compliance.</span></li>
+          <li><span class="dn">(6)</span><span>A Non-Compliance or a series of non-compliance that in the judgement and experience of the auditor is likely to either result in the failure of the management system or to substantially reduce its ability to assure controlled processes and products shall be categorized as a level 1.</span></li>
+        </ol>
+        <p class="dnote"><i>*Note: documents mean data records or documents that only relating to the audit/inspection and not include irrelevant data records or documents such as personal privacy data or documents that protected by investigation law etc.</i></p>`,
+      resp:`<p>For L1 findings, the operator shall submit their corrective action plan (CAP) that addresses the root cause to CAAT within a maximum of 3 days after the issuance. ${RESUB}</p>`},
+    l2:{tab:'L2',title:'Level 2 Finding (L2)',
+      def:`<p>A level 2 finding shall be issued by CAAT when a non-compliance is detected against the operator's procedures or manuals, applicable regulations and requirements, the terms of an approval or a certificate, specific approvals, or with the contents of a declaration <b>which could lower safety or seriously hazards flight safety.</b></p>`,
+      resp:`<p>The operator is required to submit a corrective action plan that addresses the root cause within 30 days after the finding has been uploaded, followed by a 30-day period of CAP implementation. In total, the timescale for corrective action should not exceed 60 days. In the case where an extension is requested by the operator, the allowable period for CAP implementation can be extended by 60 days (not exceeding the initial duration granted to resolve the finding).</p>
+        <p>${RESUB}</p>`},
+    obs:{tab:'OBS',title:'Observation (OBS)',
+      def:`<p>Observations are recommendations providing opportunities for improvement. The management system that may be weak, cumbersome, redundant, overly complex, or in some other manner, may, in the opinion of the auditor, offer an opportunity for an organization to improve its current practice. An observation is not subject to any corrective actions unless the operator decides to improve. It is not required to report to CAAT on the implementation of actions further to an observation and CAAT will not monitor the implementation of these actions.</p>`,
+      resp:`<p>An observation is not subject to any corrective actions. However, if an operator decides to accept the observation, the same process and timeline for submitting the corrective action for the 'Level 2 finding' shall apply.</p>`}
+  };
+  let defLv=null;
+  function defsHtml(m){
+    const lvs=m.levels==='L1'?['l1']:['l2','obs'];
+    if(lvs.indexOf(defLv)<0) defLv=lvs[0];
+    const D=DEFS[defLv];
+    const tabs=lvs.length>1?`<div class="dtabs" role="tablist" aria-label="Level definitions">${lvs.map(k=>`<button type="button" class="dtab" role="tab" data-act="deftab" data-lv="${k}" aria-selected="${k===defLv}">${DEFS[k].tab}</button>`).join('')}</div>`:'';
+    return `<div class="defs">${tabs}<p class="dtitle">${D.title}</p>
+      <div class="dcols"><div class="dcol"><h4>Definition and issuance by CAAT</h4>${D.def}</div><div class="dcol"><h4>Operator responsibility</h4>${D.resp}</div></div>
+      <p class="dsrc">Source: OPSM Chapter 8: AOC Management, (c) Non-Compliance Levels and Resolution Time Frames</p></div>`;
+  }
+
   function applySel(){
     const root=outEl.querySelector('.tl'); if(!root||!tlState) return;
     if(selDay!==null && !tlState.marks.some(m=>m.d===selDay)) selDay=null;
@@ -901,7 +959,7 @@
       <b class="dp-d">${esc(wkFmt.format(date))} ${esc(fmt(date))}${wk?'<em class="wkd">Weekend</em>':''}</b>
       <span class="dp-s ts ${st[0]}"><i></i>${esc(st[1])}<span class="dp-of">Day ${m.d} after the issue date</span></span>
       ${m.note?`<span class="dp-n">${esc(m.note)}</span>`:''}</div>
-      <div class="dp-act"><button type="button" class="dbtn" data-act="copydate">${ICON_COPY}Copy date</button><button type="button" class="dbtn ghost" data-act="clear" aria-label="Close details"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>`;
+      <div class="dp-act"><button type="button" class="dbtn" data-act="copydate">${ICON_COPY}Copy date</button><button type="button" class="dbtn ghost" data-act="clear" aria-label="Close details"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>${defsHtml(m)}`;
   }
   function selectDay(d){
     selDay = selDay===d ? null : d; applySel();
@@ -1035,7 +1093,7 @@
   outEl.addEventListener('click',e=>{
     const vb=e.target.closest('.vb'); if(vb){ setVeh(vb.getAttribute('data-v')); return; }
     const a=e.target.closest('[data-act]');
-    if(a){ if(a.getAttribute('data-act')==='copydate') copyDate(); else { selDay=null; applySel(); } return; }
+    if(a){ const act=a.getAttribute('data-act'); if(act==='copydate') copyDate(); else if(act==='deftab'){ defLv=a.getAttribute('data-lv'); applySel(); const t=$('dp').querySelector('.dtab[aria-selected="true"]'); if(t) t.focus(); } else { selDay=null; applySel(); } return; }
     const t=e.target.closest('.tile[data-d],.mk[data-d]'); if(t){ selectDay(+t.getAttribute('data-d')); return; }
     const pl=e.target.closest('.plane'); if(pl){ takeOff(pl); return; }
     const b=e.target.closest('button'); if(!b||b.disabled) return; if(b.id==='copyBtn') copySummary(); else if(b.id==='linkBtn') copyLink(); else if(b.id==='printBtn') window.print();

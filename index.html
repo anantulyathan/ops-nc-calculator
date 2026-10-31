@@ -336,6 +336,11 @@
   .veh.hit .aura{display:none}
   @media(prefers-reduced-motion:reduce){ .aura,.boom,.road.shake{animation:none} }
   .veh.hit{pointer-events:none}
+  .road.frozen .veh{pointer-events:none;cursor:default}
+  .road.frozen::after{content:"Paused \00b7 save your score or tap Play again";position:absolute;inset:0;display:grid;place-items:center;border-radius:6px;padding:0 8px;text-align:center;
+        font:500 11px/1.3 'Inter',system-ui,sans-serif;color:#cfe3f5;background:rgba(10,24,44,.5);pointer-events:none}
+  .chip.rsp{background:linear-gradient(180deg,#e9f4fb,#b9d3ea);color:#1a2e4a}
+  .lbs{padding:8px 12px;border:0;border-radius:9px;cursor:pointer;font:600 12.5px 'Inter',system-ui,sans-serif;color:#cfe3f5;background:rgba(255,255,255,.12)}
   .veh.hit svg{animation:vpop .4s ease-out forwards}
   @keyframes vpop{to{transform:scale(1.7);opacity:0}}
   .veh.hit .pts{opacity:0}
@@ -1290,7 +1295,24 @@
   const VPICK=['fire','amb','ice','food','food','baggage','baggage','fuel','bus','bus','follow'];
   const BIRD='<svg viewBox="0 0 24 12" aria-hidden="true"><path d="M0 6C4 1 9 1 12 7C15 1 20 1 24 6C19 4.5 15 6 12 10C9 6 5 4.5 0 6Z" fill="#cfe3f5"/></svg>';
   let ambT=0, birdT=0, hzT=0, blackT=0;
-  const ambApi={pace:function(){}};
+  const ambApi={pace:function(){},paused:false,anims:[]};
+  function airPause(){
+    if(ambApi.paused) return;
+    const road=outEl.querySelector('.road'), sky=outEl.querySelector('.skyb'); if(!road) return;
+    ambApi.paused=true; ambApi.anims=[];
+    (document.getAnimations?document.getAnimations():[]).forEach(a=>{
+      const t=a.effect&&a.effect.target;
+      if(t && a.playState==='running' && (road.contains(t)||(sky&&sky.contains(t)))){ a.pause(); ambApi.anims.push(a); }
+    });
+    road.classList.add('frozen');
+  }
+  function airResume(){
+    if(!ambApi.paused) return;
+    ambApi.paused=false;
+    ambApi.anims.forEach(a=>{ try{ a.play(); }catch(e){} }); ambApi.anims=[];
+    const road=outEl.querySelector('.road'); if(road) road.classList.remove('frozen');
+    gameRender(); lbRender();
+  }
   const G={on:false,done:false,score:0,end:0,t:0,best:0,nb:false,negUntil:0,saved:false,cars:0,bus:0,red:0,blk:0,haz:0};
   try{ G.best=+localStorage.getItem('ncBest')||0; }catch(e){}
   /* ===== Top 10 leaderboard (Supabase REST, table game_scores) ===== */
@@ -1314,11 +1336,12 @@
   }
   function lbRender(){
     const el=outEl.querySelector('#lb'); if(!el) return;
+    const oldIn=el.querySelector('.lbf input'), keep=oldIn?oldIn.value:null, hadFocus=!!oldIn&&document.activeElement===oldIn;
     const bt=outEl.querySelector('.lbt'); if(bt) bt.setAttribute('aria-expanded',LB.open?'true':'false');
     el.hidden=!LB.open; if(!LB.open) return;
     const pending=G.done && G.score>0 && !G.saved;
     let h='<div class="lbh"><b>Top 10</b><span>All-time scores</span><button type="button" class="lbx" aria-label="Close the Top 10">\u00d7</button></div>';
-    if(pending) h+='<form class="lbf" autocomplete="off"><input name="n" maxlength="12" value="'+esc(nick)+'" placeholder="Nickname or initials" aria-label="Nickname or initials"><button type="submit"'+(LB.busy?' disabled':'')+'>Save '+G.score+' pts</button></form>';
+    if(pending) h+='<form class="lbf" autocomplete="off"><input name="n" maxlength="12" value="'+esc(nick)+'" placeholder="Nickname or initials" aria-label="Nickname or initials"><button type="submit"'+(LB.busy?' disabled':'')+'>Save '+G.score+' pts</button>'+(ambApi.paused?'<button type="button" class="lbs">Skip</button>':'')+'</form>';
     else if(G.saved) h+='<p class="lbn ok">Score saved. Thank you!</p>';
     if(LB.msg) h+='<p class="lbn '+LB.msgc+'">'+esc(LB.msg)+'</p>';
     if(LB.state==='loading') h+='<p class="lbn">Loading the scores\u2026</p>';
@@ -1335,6 +1358,14 @@
       }
     }
     el.innerHTML=h;
+    const ni=el.querySelector('.lbf input'); if(ni){ if(keep!==null) ni.value=keep; if(hadFocus){ ni.focus(); try{ const L=ni.value.length; ni.setSelectionRange(L,L); }catch(e){} } }
+  }
+  function lbPrompt(){
+    if(!(G.score>0)) return;
+    LB.open=true; LB.msg=''; lbRender();
+    if(LB.state==='idle'||LB.state==='err') lbLoad();
+    const f=outEl.querySelector('.lbf input'); if(f){ try{ f.focus({preventScroll:true}); }catch(e){ f.focus(); } }
+    const pn=outEl.querySelector('#lb'); if(pn&&pn.scrollIntoView) pn.scrollIntoView({block:'nearest',behavior:'smooth'});
   }
   async function lbSubmit(form){
     const inp=form.querySelector('input'); const name=inp.value.replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,12);
@@ -1347,7 +1378,7 @@
       await lbSave(name,G.score);
       G.saved=true; LB.mine={nick:name,score:G.score}; LB.msg='';
       try{ localStorage.setItem('ncNick',name); localStorage.setItem('ncLastSave',String(Date.now())); }catch(e){}
-      LB.busy=false; gameRender(); await lbLoad();
+      LB.busy=false; airResume(); gameRender(); await lbLoad();
     }catch(err){
       LB.busy=false; LB.msgc='bad';
       LB.msg=(err&&err.status===404)?'The Top 10 is not set up yet. Please contact HCT.':'The score could not be saved. Please try again.';
@@ -1372,8 +1403,9 @@
       if(G.blk) ch.push('<span class="chip g">Black car <b>\u00d7'+G.blk+'</b></span>');
       if(G.haz) ch.push('<span class="chip r">Hazards <b>\u00d7'+G.haz+'</b></span>');
       if(G.score>0 && !G.saved) ch.push('<button type="button" class="chip sv">Save to Top 10</button>');
+      if(ambApi.paused) ch.push('<button type="button" class="chip sv rsp">Play again</button>');
       ch.push(G.nb?'<span class="chip nb">New best!</span>':'<span class="chip">Best <b>'+G.best+'</b></span>');
-      h.innerHTML='<div class="rs"><div class="rbig'+(G.score<0?' neg':'')+'"><small>TIME\u2019S UP</small><b>'+G.score+'</b><span>points</span></div><div class="rside"><div class="chips">'+ch.join('')+'</div><div class="again">'+PLAY+'Tap a vehicle to play again</div></div></div>';
+      h.innerHTML='<div class="rs"><div class="rbig'+(G.score<0?' neg':'')+'"><small>TIME\u2019S UP</small><b>'+G.score+'</b><span>points</span></div><div class="rside"><div class="chips">'+ch.join('')+'</div>'+(ambApi.paused?'':'<div class="again">'+PLAY+'Tap a vehicle to play again</div>')+'</div></div>';
     }
     else {
       h.className='ghud idle';
@@ -1387,7 +1419,7 @@
       if(performance.now()>=G.end){
         clearInterval(G.t); G.on=false; G.done=true;
         if(G.score>G.best){ G.nb=G.best>0||G.score>0; G.best=G.score; try{ localStorage.setItem('ncBest',String(G.best)); }catch(e){} }
-        ambApi.pace(false); lbRender();
+        ambApi.pace(false); airPause(); lbPrompt();
       }
       gameRender();
     },200);
@@ -1414,7 +1446,7 @@
     }
   }
   function hitVeh(v){
-    if(!amb||v.classList.contains('hit')) return;
+    if(!amb||ambApi.paused||v.classList.contains('hit')) return;
     if(v.dataset.hz){
       v.classList.add('hit');
       const bm=document.createElement('span'); bm.className='boom'; v.appendChild(bm);
@@ -1429,7 +1461,7 @@
     gameRender();
   }
   function startAmbient(){
-    clearTimeout(ambT); clearTimeout(birdT); clearTimeout(hzT); clearTimeout(blackT); gameReset();
+    clearTimeout(ambT); clearTimeout(birdT); clearTimeout(hzT); clearTimeout(blackT); ambApi.paused=false; ambApi.anims=[]; gameReset();
     const road=outEl.querySelector('.road'), sky=outEl.querySelector('.skyb');
     if(!road||!sky) return;
     road.querySelectorAll('.veh').forEach(n=>n.remove()); sky.querySelectorAll('.bird').forEach(n=>n.remove());
@@ -1437,7 +1469,7 @@
     const VW=44, rnd=Math.random;
     const lanes=[{dir:1,top:23,speed:0,n:0,at:0},{dir:-1,top:2,speed:0,n:0,at:0}];
     const spawn=(lane,type,pre)=>{
-      const W=road.clientWidth; if(W<200||lane.n>=(HZ[type]?5:4)||lane.chase) return false;
+      const W=road.clientWidth; if(ambApi.paused||W<200||lane.n>=(HZ[type]?5:4)||lane.chase) return false;
       if(hzPending && !HZ[type]) return false;
       const now=performance.now();
       if(lane.n===0) lane.speed=(38+rnd()*30)*2; else if(now-lane.at<(VW+40)/lane.speed*1000) return false;
@@ -1447,14 +1479,15 @@
       if(HZ[type]){ el.classList.add('hz'); el.style.setProperty('--hz',HZ[type]); el.dataset.pts=-10; el.dataset.hz='1'; el.insertAdjacentHTML('afterbegin','<i class="aura"></i>'); }
       road.appendChild(el);
       const a=-(VW+8), z=W+8, from=lane.dir>0?a:z, to=lane.dir>0?z:a;
-      el.animate([{transform:'translateX('+from+'px)'},{transform:'translateX('+to+'px)'}],{duration:dur,delay:delay,easing:'linear',fill:'both'});
+      const an=el.animate([{transform:'translateX('+from+'px)'},{transform:'translateX('+to+'px)'}],{duration:dur,delay:delay,easing:'linear',fill:'both'});
       lane.n++; lane.at=now;
-      setTimeout(()=>{ lane.n=Math.max(0,lane.n-1); el.remove(); },dur+delay+150);
+      an.onfinish=()=>{ lane.n=Math.max(0,lane.n-1); el.remove(); };
       return true;
     };
     const pick=()=>VPICK[Math.floor(rnd()*VPICK.length)];
     const tick=()=>{
       if(!road.isConnected) return;
+      if(ambApi.paused){ ambT=setTimeout(tick,300); return; }
       if(!document.hidden){
         if(!G.on && rnd()<.1 && chase()){ ambT=setTimeout(tick,500+rnd()*700); return; }
         const t=pick(), lane=lanes[rnd()<.5?0:1];
@@ -1471,22 +1504,21 @@
       busy=true; lane.chase=true;
       const go=()=>{
         if(!road.isConnected){ return; }
-        if(lane.n>0 || document.hidden){ setTimeout(go,300); return; }
+        if(lane.n>0 || document.hidden || ambApi.paused){ setTimeout(go,300); return; }
         const speed=106*3;
         const dur=(W+2*(VW+8))/speed*1000, gap=(VW+26)/speed*1000;
         const a=-(VW+8), z=W+8, from=lane.dir>0?a:z, to=lane.dir>0?z:a;
         lane.n=2;
-        const mk=(type,delay)=>{
+        const mk=(type,delay,done)=>{
           const el=document.createElement('div'); el.className='veh '+type; el.style.top=lane.top+'px'; el.innerHTML=VART[type](); el.dataset.pts=type==='crook'?15:5;
           if(type==='crook') el.insertAdjacentHTML('beforeend','<b class="pts">15 pts!</b>');
           if(lane.dir<0) el.firstChild.style.transform='scaleX(-1)';
           road.appendChild(el);
-          el.animate([{transform:'translateX('+from+'px)'},{transform:'translateX('+to+'px)'}],{duration:dur,delay:delay,easing:'linear',fill:'both'});
+          const an=el.animate([{transform:'translateX('+from+'px)'},{transform:'translateX('+to+'px)'}],{duration:dur,delay:delay,easing:'linear',fill:'both'});
           if(type==='crook') el.animate([{top:lane.top+'px'},{top:(lane.top-2)+'px'},{top:(lane.top+1)+'px'},{top:lane.top+'px'}],{duration:420,iterations:Infinity,easing:'ease-in-out'});
-          setTimeout(()=>el.remove(),dur+delay+150);
+          an.onfinish=()=>{ el.remove(); if(done) done(); };
         };
-        mk('crook',0); mk('police',gap);
-        setTimeout(()=>{ lane.n=0; lane.chase=false; busy=false; },dur+gap+200);
+        mk('crook',0); mk('police',gap,()=>{ lane.n=0; lane.chase=false; busy=false; });
       };
       go();
       return true;
@@ -1494,13 +1526,13 @@
     /* black sports car: 25% faster than the criminal car, then 20% faster again (about 3.75x the average car), chased by a police car, once every 20 seconds, worth 20 points */
     const blackCar=relT=>{
       if(!road.isConnected) return;
-      if(busy){ blackT=setTimeout(()=>blackCar(relT),400); return; }
+      if(busy||ambApi.paused){ blackT=setTimeout(()=>blackCar(relT),400); return; }
       const W=road.clientWidth; if(W<200){ planBlack(relT+20000); return; }
       busy=true;
       const lane=lanes[0].n<=lanes[1].n?lanes[0]:lanes[1]; lane.chase=true;
       const go=()=>{
         if(!road.isConnected) return;
-        if(lane.n>0 || document.hidden || performance.now()<relT){ setTimeout(go,150); return; }
+        if(lane.n>0 || document.hidden || ambApi.paused || performance.now()<relT){ setTimeout(go,150); return; }
         const speed=106*3*1.25*1.2, dur=(W+2*(VW+8))/speed*1000, gap=(VW+26)/speed*1000;
         const a=-(VW+8), z=W+8, from=lane.dir>0?a:z, to=lane.dir>0?z:a;
         lane.n=2;
@@ -1508,14 +1540,13 @@
         el.insertAdjacentHTML('beforeend','<b class="pts b">25 pts!</b>');
         if(lane.dir<0) el.firstChild.style.transform='scaleX(-1)';
         road.appendChild(el);
-        el.animate([{transform:'translateX('+from+'px)'},{transform:'translateX('+to+'px)'}],{duration:dur,easing:'linear',fill:'both'});
-        setTimeout(()=>el.remove(),dur+150);
+        const ab=el.animate([{transform:'translateX('+from+'px)'},{transform:'translateX('+to+'px)'}],{duration:dur,easing:'linear',fill:'both'});
+        ab.onfinish=()=>el.remove();
         const pc=document.createElement('div'); pc.className='veh police'; pc.style.top=lane.top+'px'; pc.innerHTML=VART.police(); pc.dataset.pts=5;
         if(lane.dir<0) pc.firstChild.style.transform='scaleX(-1)';
         road.appendChild(pc);
-        pc.animate([{transform:'translateX('+from+'px)'},{transform:'translateX('+to+'px)'}],{duration:dur,delay:gap,easing:'linear',fill:'both'});
-        setTimeout(()=>pc.remove(),dur+gap+150);
-        setTimeout(()=>{ lane.n=0; lane.chase=false; busy=false; },dur+gap+250);
+        const ap=pc.animate([{transform:'translateX('+from+'px)'},{transform:'translateX('+to+'px)'}],{duration:dur,delay:gap,easing:'linear',fill:'both'});
+        ap.onfinish=()=>{ pc.remove(); lane.n=0; lane.chase=false; busy=false; };
         planBlack(relT+20000);
       };
       go();
@@ -1526,6 +1557,7 @@
     const HZT=['rad','expl','bio']; let hzPending=false;
     const hzGo=()=>{
       if(!road.isConnected) return;
+      if(ambApi.paused){ hzT=setTimeout(hzGo,300); return; }
       if(!document.hidden){
         const ls=rnd()<.5?[lanes[0],lanes[1]]:[lanes[1],lanes[0]], t=HZT[Math.floor(rnd()*3)];
         if(!(spawn(ls[0],t,false)||spawn(ls[1],t,false))){ hzPending=true; hzT=setTimeout(hzGo,150); return; }
@@ -1546,14 +1578,14 @@
       sky.appendChild(el);
       const a=-40, z=W+40, N=5, kf=[];
       for(let i=0;i<=N;i++){ const x=dir>0?a+(z-a)*i/N:z-(z-a)*i/N; kf.push({transform:'translate('+(x+(dx||0))+'px,'+Math.max(0,Math.min(H-12,y0+(dy||0)+(i%2?-1:1)*rnd()*8))+'px)'}); }
-      el.animate(kf,{duration:dur,delay:delay,easing:'linear',fill:'both'});
+      const ab=el.animate(kf,{duration:dur,delay:delay,easing:'linear',fill:'both'});
       el.firstChild.firstChild.animate([{transform:'scaleY(1)'},{transform:'scaleY(.35)'}],{duration:260+rnd()*160,iterations:Infinity,direction:'alternate',easing:'ease-in-out'});
-      setTimeout(()=>el.remove(),dur+delay+200);
+      ab.onfinish=()=>el.remove();
     };
     const flock=pre=>{ const n=rnd()<.4?3:(rnd()<.5?2:1); for(let i=0;i<n;i++) bird(pre,-i*22,(i%2?1:-1)*i*6); };
     const bt=()=>{
       if(!sky.isConnected) return;
-      if(!document.hidden && sky.children.length<7) flock(false);
+      if(!document.hidden && !ambApi.paused && sky.children.length<7) flock(false);
       birdT=setTimeout(bt,2200+rnd()*3800);
     };
     flock(true); flock(true);
@@ -1662,7 +1694,9 @@
   outEl.addEventListener('click',e=>{
     const vb=e.target.closest('.vb'); if(vb){ setVeh(vb.getAttribute('data-v')); return; }
     const vh=e.target.closest('.veh'); if(vh){ hitVeh(vh); return; }
-    if(e.target.closest('.lbx')){ LB.open=false; lbRender(); return; }
+    if(e.target.closest('.rsp')){ airResume(); return; }
+    if(e.target.closest('.lbs')){ LB.open=false; LB.msg=''; airResume(); return; }
+    if(e.target.closest('.lbx')){ LB.open=false; lbRender(); if(ambApi.paused) airResume(); return; }
     if(e.target.closest('.lbr')){ lbLoad(); return; }
     const lt=e.target.closest('.lbt'); if(lt){ LB.open=!LB.open; LB.msg=''; lbRender(); if(LB.open&&LB.state!=='loading') lbLoad(); return; }
     const sv=e.target.closest('.sv'); if(sv){ LB.open=true; LB.msg=''; lbRender(); if(LB.state==='idle') lbLoad(); const f=outEl.querySelector('.lbf input'); if(f){ f.focus(); } const pn=outEl.querySelector('#lb'); if(pn&&pn.scrollIntoView) pn.scrollIntoView({block:'nearest',behavior:'smooth'}); return; }

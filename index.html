@@ -1820,7 +1820,7 @@
       if(hzPending && !HZ[type]) return false;
       if(!pre && lane.n>0 && lane.last===type) return false;   /* never the same vehicle type right behind another */
       const now=performance.now();
-      if(lane.n===0 && (mate.n===0||mate.chase)) lane.speed=mate.speed=(38+rnd()*30)*2;
+      if(lane.n===0 && (mate.n===0||mate.chase)) lane.speed=mate.speed=(38+rnd()*30)*2*1.1;   /* ordinary traffic is 10% faster */
       else if(lane.n===0) lane.speed=mate.speed;
       if(!pre && now-lane.at<(VW+40)/lane.speed*1000) return false;
       const dur=(W+2*(VW+8))/lane.speed*1000, delay=pre?-rnd()*dur*.7:0, sEff=now+delay;

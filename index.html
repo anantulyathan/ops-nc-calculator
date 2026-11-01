@@ -1791,9 +1791,21 @@
     const old=f.querySelector('.cb'); if(old) old.remove();
     const b=document.createElement('span'); b.className='cb tb'; b.textContent='??'; b.setAttribute('aria-hidden','true'); f.appendChild(b);
   }
+  /* turning Live City on or off refreshes the whole game: round, counters, pause, save panel and leftover effects */
+  function cityRefresh(){
+    clearInterval(G.t);
+    G.on=false; G.done=false; G.saved=false; G.score=0; G.nb=false; G.negUntil=0; G.cars=G.bus=G.pol=G.red=G.blk=G.dod=G.haz=0;
+    LB.open=false; LB.msg=''; LB.busy=false;
+    try{ outEl.querySelectorAll('.bst,.slay,.cb,.puff,.ring').forEach(n=>n.remove()); }catch(e){}
+    ambApi.paused=false; ambApi.anims=[];
+    const rd=outEl.querySelector('.road'); if(rd) rd.classList.remove('frozen');
+    musicStop(); lbRender();
+  }
   function startAmbient(){
     clearTimeout(ambT); clearTimeout(birdT); clearTimeout(hzT); clearTimeout(blackT); clearTimeout(dodgeT); clearTimeout(shootT); ambApi.paused=false; ambApi.anims=[]; gameReset();
     const road=outEl.querySelector('.road'), sky=outEl.querySelector('.skyb');
+    if(road) road.classList.remove('frozen');   /* fix: turning Live City off and on while the round was paused left the road frozen with no way out */
+    if(LB.open&&!G.on){ LB.open=false; LB.msg=''; lbRender(); }
     if(!road||!sky) return;
     road.querySelectorAll('.veh').forEach(n=>n.remove()); sky.querySelectorAll('.bird').forEach(n=>n.remove());
     if(amb) roadDecor(road);
@@ -2140,7 +2152,7 @@
       amb=!amb;
       at.setAttribute('aria-checked',amb?'true':'false'); at.classList.toggle('lure',!amb); at.innerHTML=ambInner();
       const tl=at.closest('.tl'); if(tl) tl.classList.toggle('noamb',!amb);
-      startAmbient(); trackTag(0); musicSync(); return;
+      cityRefresh(); startAmbient(); trackTag(0); musicSync(); return;
     }
     const a=e.target.closest('[data-act]');
     if(a){ const act=a.getAttribute('data-act'); if(act==='copydate') copyDate(); else if(act==='deftab'){ defLv=a.getAttribute('data-lv'); applySel(); const t=$('dp').querySelector('.dtab[aria-selected="true"]'); if(t) t.focus(); } else { selDay=null; applySel(); } return; }

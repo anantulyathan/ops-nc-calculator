@@ -430,6 +430,12 @@
   .ambt{display:inline-flex;align-items:center;gap:8px;padding:5px 12px 5px 6px;border:0;border-radius:20px;cursor:pointer;font:500 11.5px/1 'Inter',system-ui,sans-serif;color:#b9c8dc;background:rgba(255,255,255,.07)}
   .ambt:hover{background:rgba(255,255,255,.14)}
   .ambt:focus-visible{outline:2px solid #8fe6da;outline-offset:2px}
+  /* Live City toggle: blue, to stand apart from the green controls */
+  .ambt.lcity.lure{background:linear-gradient(135deg,rgba(37,99,168,.6),rgba(30,77,140,.5));box-shadow:inset 0 0 0 1px rgba(139,184,236,.8),0 4px 16px rgba(10,24,44,.4)}
+  .ambt.lcity.lure .pi{background:linear-gradient(145deg,#4f8fd6,#2563a8)}
+  .ambt.lcity.lure .pi::after{border-color:#8bb8ec}
+  .ambt.lcity[aria-checked="true"]{background:rgba(37,99,168,.3);box-shadow:inset 0 0 0 1px rgba(139,184,236,.55)}
+  .ambt.lcity[aria-checked="true"] .sw{background:#2563a8}
   .ambt .sw{position:relative;width:26px;height:15px;border-radius:9px;background:rgba(255,255,255,.22);transition:background .2s}
   .ambt .sw::after{content:"";position:absolute;left:2px;top:2px;width:11px;height:11px;border-radius:50%;background:#fff;transition:transform .2s}
   .ambt[aria-checked="true"]{color:#fff}
@@ -464,6 +470,13 @@
   .lbl .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff;font-weight:500}
   .lbl .sc{font:600 13px 'JetBrains Mono',ui-monospace,monospace;color:#8fe6da}
   .lbl .dt{font-size:11px;color:#8fa4bf}
+  .lbf select{min-width:132px;padding:8px 10px;border:0;border-radius:9px;font:500 13px 'Inter',system-ui,sans-serif;color:#1a2e4a;background:#f4f8fb;box-shadow:inset 0 0 0 1px rgba(143,230,218,.5)}
+  .lbf select:focus-visible{outline:2px solid #8fe6da;outline-offset:1px}
+  .lbd{display:grid;gap:5px;margin:2px 0 10px;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(143,230,218,.25)}
+  .lbd p{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;font-size:12.5px;color:#dbe7f5}
+  .lbd b{font:600 14px 'JetBrains Mono',ui-monospace,monospace;color:#f6d98a}
+  .lbd small{font-size:11px;color:#8fa4bf}
+  .lbl .dv{font-style:normal;margin-left:6px;padding:1px 6px;border-radius:7px;font:600 10px 'JetBrains Mono',ui-monospace,monospace;color:#cfe3f5;background:rgba(255,255,255,.12)}
   .chip.sv{pointer-events:auto;cursor:pointer;border:0;font:700 10px 'Inter',system-ui,sans-serif;color:#06302b;background:linear-gradient(180deg,#a9f1e6,#3bbfb0)}
   @media print{ .lb,.lbt,.hpt,.hpo{display:none!important} }
   /* ===== V2 ===== */
@@ -1205,7 +1218,7 @@
     lbRender(); if(LB.open&&LB.state==='idle') lbLoad();
   }
 
-  outEl.addEventListener('change',e=>{ const t=e.target; if(t && t.matches && t.matches('input[data-lv]')){ sel[t.getAttribute('data-lv')]=t.checked; updateShare(); } });
+  outEl.addEventListener('change',e=>{ const t=e.target; if(t && t.matches && t.matches('.lbf select')){ if(DIVS.indexOf(t.value)>=0) divSel=t.value; return; } if(t && t.matches && t.matches('input[data-lv]')){ sel[t.getAttribute('data-lv')]=t.checked; updateShare(); } });
   /* ---------- interactive timeline ---------- */
   const wkFmt=new Intl.DateTimeFormat('en-GB',{weekday:'long'});
   const wkShort=new Intl.DateTimeFormat('en-GB',{weekday:'short'});
@@ -1344,7 +1357,7 @@
     taxi:()=>sv('<rect x="4" y="14" width="52" height="7" rx="2.5" fill="#e08a2c"/><polygon points="15,14 22,8.5 41,8.5 49,14" fill="#e08a2c"/><polygon points="23.5,9.8 29.5,9.8 30.5,13.2 20.5,13.2" fill="#bcd9f2"/><polygon points="32,9.8 39,9.8 44,13.2 32.6,13.2" fill="#bcd9f2"/><rect x="27" y="4.6" width="10" height="3.8" rx="1" fill="#f4f8fb"/><rect x="29" y="5.8" width="6" height="1.4" fill="#e08a2c"/><rect x="9" y="16" width="30" height="4" fill="#f4f8fb"/><rect x="9" y="16" width="3" height="2" fill="#1b2a3d"/><rect x="12" y="18" width="3" height="2" fill="#1b2a3d"/><rect x="15" y="16" width="3" height="2" fill="#1b2a3d"/><rect x="18" y="18" width="3" height="2" fill="#1b2a3d"/><rect x="21" y="16" width="3" height="2" fill="#1b2a3d"/><rect x="24" y="18" width="3" height="2" fill="#1b2a3d"/><rect x="27" y="16" width="3" height="2" fill="#1b2a3d"/><rect x="30" y="18" width="3" height="2" fill="#1b2a3d"/><rect x="33" y="16" width="3" height="2" fill="#1b2a3d"/><rect x="36" y="18" width="3" height="2" fill="#1b2a3d"/><rect x="53" y="15.5" width="3.5" height="2" fill="#e8c96a"/><rect x="4" y="16" width="2.5" height="2" fill="#ff8a7a"/>'+wh(16,3.8)+wh(44,3.8)),
     sedan:()=>{const c=CARC[Math.floor(Math.random()*CARC.length)];return sv('<rect x="4" y="14" width="52" height="7" rx="2.5" fill="'+c+'"/><polygon points="14,14 21,8 41,8 49,14" fill="'+c+'"/><polygon points="22.5,9.3 29.5,9.3 30.2,13 20,13" fill="#bcd9f2"/><polygon points="32,9.3 39.5,9.3 44.5,13 32.6,13" fill="#bcd9f2"/><rect x="53" y="15.3" width="3.5" height="2" fill="#f1dc8c"/><rect x="4" y="15.6" width="2.5" height="2" fill="#ff8a7a"/><rect x="4" y="18.8" width="52" height="1.1" fill="#000" opacity=".2"/>'+wh(16,3.8)+wh(44,3.8));},
     suv:()=>{const c=CARC[Math.floor(Math.random()*CARC.length)];return sv('<rect x="4" y="11" width="52" height="10" rx="3" fill="'+c+'"/><polygon points="9,11 13,5.5 45,5.5 51,11" fill="'+c+'"/><rect x="13" y="3.8" width="31" height="1.3" rx=".6" fill="#8fa4bf"/><polygon points="14,6.8 21.5,6.8 21.5,10.6 11.2,10.6" fill="#bcd9f2"/><polygon points="23.2,6.8 32,6.8 32,10.6 23.2,10.6" fill="#bcd9f2"/><polygon points="33.7,6.8 43.8,6.8 48.6,10.6 33.7,10.6" fill="#bcd9f2"/><rect x="53" y="13" width="3.5" height="2.2" fill="#f1dc8c"/><rect x="4" y="13" width="2.5" height="2.2" fill="#ff8a7a"/><rect x="4" y="18" width="52" height="3" fill="#1b2a3d" opacity=".35"/>'+wh(15,4.2)+wh(45,4.2));},
-    bank:()=>sv('<rect x="3" y="19" width="55" height="2" fill="#3a4a5f"/><rect x="3" y="3" width="42" height="17" rx="3" fill="#3f8f5f"/><rect x="3" y="3" width="42" height="3" rx="1.5" fill="#fff" opacity=".2"/><rect x="3" y="16" width="42" height="2" fill="#2d6a46"/><circle cx="15" cy="11.5" r="7" fill="#f6d98a" stroke="#b8862b" stroke-width="1"/><text class="dl" x="15" y="16" text-anchor="middle" font-size="13" font-weight="900" font-family="Arial,Helvetica,sans-serif" fill="#2a1a04">$</text><circle cx="33" cy="11.5" r="7" fill="#f6d98a" stroke="#b8862b" stroke-width="1"/><text class="dl" x="33" y="16" text-anchor="middle" font-size="13" font-weight="900" font-family="Arial,Helvetica,sans-serif" fill="#2a1a04">$</text><rect x="46" y="9" width="12" height="12" rx="2" fill="#2d6a46"/><path d="M49 10.5h6v4h-6z" fill="#bcd9f2"/><rect x="46" y="17" width="12" height="2" fill="#3f8f5f"/>'+wh(12)+wh(26)+wh(37)+wh(52)),
+    bank:()=>sv('<rect x="3" y="19" width="55" height="2" fill="#3a4a5f"/><rect x="3" y="3" width="43" height="17" rx="3" fill="#ffffff" stroke="#a0aec0" stroke-width=".7"/><rect x="3" y="3" width="43" height="3" rx="1.5" fill="#cbd5e0" opacity=".45"/><rect x="3.4" y="16.6" width="42.2" height="2" fill="#2a9d8f"/><text class="dl" x="24.5" y="14.4" text-anchor="middle" font-size="11.5" font-weight="900" letter-spacing=".6" font-family="Arial,Helvetica,sans-serif" fill="#1e4d8c" stroke="#1e4d8c" stroke-width=".5" stroke-linejoin="round">CAAT</text><rect x="46" y="9" width="12" height="12" rx="2" fill="#ffffff" stroke="#a0aec0" stroke-width=".7"/><path d="M49 10.5h6v4h-6z" fill="#9ecbe6"/><rect x="46.4" y="17" width="11.2" height="2" fill="#2a9d8f"/>'+wh(12)+wh(26)+wh(37)+wh(52)),
     police:()=>sv('<rect x="5" y="12" width="48" height="9" rx="3" fill="#f4f8fb"/><path d="M16 12l4-5h16l6 5z" fill="#f4f8fb"/><path d="M21 8.5h7l-1 3.5h-9zM30 8.5h6l3 3.5h-9z" fill="#2c4a6e"/><rect x="5" y="16" width="48" height="2.6" fill="#1e4d8c"/><rect x="23" y="4.5" width="5" height="3" rx="1" class="sir"/><rect x="29" y="4.5" width="5" height="3" rx="1" class="sir sir2"/>'+wh(17)+wh(42)),
     crook:()=>sv('<rect x="4" y="14" width="52" height="7" rx="2.5" fill="#c0392b"/><polygon points="16,14 23,8.5 40,8.5 48,14" fill="#c0392b"/><polygon points="24.5,9.8 29.5,9.8 30.5,13.2 21.5,13.2" fill="#1b2a3d"/><polygon points="32,9.8 38.5,9.8 43.5,13.2 32.6,13.2" fill="#1b2a3d"/><rect x="4" y="10.5" width="8" height="1.6" fill="#8a2c1f"/><rect x="6" y="12" width="1.4" height="2.2" fill="#8a2c1f"/><rect x="53" y="15.5" width="3.5" height="2" fill="#e8c96a"/><rect x="4" y="16" width="2.5" height="2" fill="#ffb3a8"/><rect x="4" y="18.4" width="52" height="1.2" fill="#f4f8fb" opacity=".6"/>'+wh(16,3.8)+wh(44,3.8)),
     rad:()=>sv(hz('#e8b923','<g fill="#1b2a3d"><path d="M24 13V6.4A6.6 6.6 0 0 1 29.7 9.7z"/><path d="M24 13V6.4A6.6 6.6 0 0 1 29.7 9.7z" transform="rotate(120 24 13)"/><path d="M24 13V6.4A6.6 6.6 0 0 1 29.7 9.7z" transform="rotate(240 24 13)"/><circle cx="24" cy="13" r="1.8"/></g>')),
@@ -1409,20 +1422,33 @@
   /* ===== Top 10 leaderboard (Supabase REST, table game_scores) ===== */
   const SB_URL='https://xnauczzrkjupjfpolvzr.supabase.co';
   const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhuYXVjenpya2p1cGpmcG9sdnpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwOTk3OTIsImV4cCI6MjA5NjY3NTc5Mn0.qxyTGXF7DlqhxyR6xyi2inYPEVCgQBVkRM8Ca5zpd3s';
-  const LB={open:false,state:'idle',rows:[],mine:null,msg:'',msgc:'',busy:false};
+  const LB={open:false,state:'idle',rows:[],mine:null,msg:'',msgc:'',busy:false,stats:null,nodiv:false};
+  const DIVS=['OM','CS','FO','DG','FA','GA','GO','CT','OPS Manager'];
+  let divSel=''; try{ const sd=localStorage.getItem('ncDiv'); if(DIVS.indexOf(sd)>=0) divSel=sd; }catch(e){}
+  /* Top Division: highest average (at least 3 saved scores) and best single score */
+  function divStats(rows){
+    const m={}; (rows||[]).forEach(r=>{ if(DIVS.indexOf(r.division)<0||typeof r.score!=='number') return; const o=m[r.division]||(m[r.division]={d:r.division,n:0,sum:0,max:-1e9}); o.n++; o.sum+=r.score; if(r.score>o.max) o.max=r.score; });
+    const L=Object.keys(m).map(k=>m[k]); if(!L.length) return null;
+    const el=L.filter(o=>o.n>=3).sort((a,b)=>(b.sum/b.n)-(a.sum/a.n)||b.n-a.n);
+    const mx=Math.max.apply(null,L.map(o=>o.max));
+    return {avg:el.length?{d:el[0].d,v:Math.round(el[0].sum/el[0].n*10)/10,n:el[0].n}:null,best:{d:L.filter(o=>o.max===mx).map(o=>o.d).join(' / '),v:mx}};
+  }
   let nick=''; try{ nick=localStorage.getItem('ncNick')||''; }catch(e){}
   const sbH=()=>({apikey:SB_KEY,Authorization:'Bearer '+SB_KEY});
   async function lbLoad(){
     LB.state='loading'; lbRender();
     try{
-      const r=await fetch(SB_URL+'/rest/v1/game_scores?select=nickname,score,created_at&order=score.desc,created_at.asc&limit=10',{headers:sbH()});
+      let r=await fetch(SB_URL+'/rest/v1/game_scores?select=nickname,score,division,created_at&order=score.desc,created_at.asc&limit=10',{headers:sbH()});
+      LB.nodiv=false;
+      if(!r.ok){ r=await fetch(SB_URL+'/rest/v1/game_scores?select=nickname,score,created_at&order=score.desc,created_at.asc&limit=10',{headers:sbH()}); LB.nodiv=true; }   /* division column not added yet */
       if(!r.ok) throw new Error(String(r.status));
-      LB.rows=await r.json(); LB.state='ok';
+      LB.rows=await r.json(); LB.state='ok'; LB.stats=null;
+      if(!LB.nodiv){ try{ const q=await fetch(SB_URL+'/rest/v1/game_scores?select=division,score&division=not.is.null&order=created_at.desc&limit=1000',{headers:sbH()}); if(q.ok) LB.stats=divStats(await q.json()); }catch(e2){} }
     }catch(err){ LB.state='err'; }
     lbRender();
   }
-  async function lbSave(name,score){
-    const r=await fetch(SB_URL+'/rest/v1/game_scores',{method:'POST',headers:Object.assign({'Content-Type':'application/json',Prefer:'return=minimal'},sbH()),body:JSON.stringify({nickname:name,score:score})});
+  async function lbSave(name,score,division){
+    const r=await fetch(SB_URL+'/rest/v1/game_scores',{method:'POST',headers:Object.assign({'Content-Type':'application/json',Prefer:'return=minimal'},sbH()),body:JSON.stringify({nickname:name,score:score,division:division})});
     if(!r.ok){ const e=new Error(String(r.status)); e.status=r.status; throw e; }
   }
   function lbRender(){
@@ -1432,19 +1458,20 @@
     el.hidden=!LB.open; if(!LB.open) return;
     const pending=G.done && G.score>0 && !G.saved;
     let h='<div class="lbh"><b>Top 10</b><span>All-time scores</span><button type="button" class="lbx" aria-label="Close the Top 10">\u00d7</button></div>';
-    if(pending) h+='<form class="lbf" autocomplete="off"><input name="n" maxlength="12" value="'+esc(nick)+'" placeholder="Nickname or initials" aria-label="Nickname or initials"><button type="submit"'+(LB.busy?' disabled':'')+'>Save '+G.score+' pts</button>'+(ambApi.paused?'<button type="button" class="lbs">Skip</button>':'')+'</form>';
+    if(pending) h+='<form class="lbf" autocomplete="off"><input name="n" maxlength="12" value="'+esc(nick)+'" placeholder="Nickname or initials" aria-label="Nickname or initials"><select name="d" required aria-label="Your division"><option value="">Select division</option>'+DIVS.map(d=>'<option value="'+esc(d)+'"'+(d===divSel?' selected':'')+'>'+esc(d)+'</option>').join('')+'</select><button type="submit"'+(LB.busy?' disabled':'')+'>Save '+G.score+' pts</button>'+(ambApi.paused?'<button type="button" class="lbs">Skip</button>':'')+'</form>';
     else if(G.saved) h+='<p class="lbn ok">Score saved. Thank you!</p>';
     if(LB.msg) h+='<p class="lbn '+LB.msgc+'">'+esc(LB.msg)+'</p>';
     if(LB.state==='loading') h+='<p class="lbn">Loading the scores\u2026</p>';
     else if(LB.state==='err') h+='<p class="lbn bad">The scores could not be loaded. Please check the connection.</p><button type="button" class="lbr">Try again</button>';
     else if(LB.state==='ok'){
+      if(LB.stats){ const S=LB.stats; h+='<div class="lbd"><p>Top Division <b>= '+(S.avg?esc(S.avg.d):'not yet')+'</b><small>'+(S.avg?'highest average, '+S.avg.v+' pts ('+S.avg.n+' scores)':'highest average needs 3 saved scores per division')+'</small></p><p>Top Division <b>= '+esc(S.best.d)+'</b><small>best single score, '+S.best.v+' pts</small></p></div>'; }
       if(!LB.rows.length) h+='<p class="lbn">No scores yet. Be the first!</p>';
       else{
         let mineDone=false;
         h+='<ol class="lbl">'+LB.rows.map((r,i)=>{
           const me=!mineDone && LB.mine && r.nickname===LB.mine.nick && r.score===LB.mine.score; if(me) mineDone=true;
           let d=''; try{ d=new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }catch(x){}
-          return '<li'+(me?' class="me"':'')+'><span class="rk">'+(i+1)+'</span><span class="nm">'+esc(r.nickname)+'</span><span class="sc">'+esc(r.score)+'</span><span class="dt">'+esc(d)+'</span></li>';
+          return '<li'+(me?' class="me"':'')+'><span class="rk">'+(i+1)+'</span><span class="nm">'+esc(r.nickname)+(r.division?'<em class="dv">'+esc(r.division)+'</em>':'')+'</span><span class="sc">'+esc(r.score)+'</span><span class="dt">'+esc(d)+'</span></li>';
         }).join('')+'</ol>';
       }
     }
@@ -1461,18 +1488,20 @@
   async function lbSubmit(form){
     const inp=form.querySelector('input'); const name=inp.value.replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,12);
     LB.msg=''; 
-    if(!name){ LB.msg='Please type a nickname or initials.'; LB.msgc='bad'; lbRender(); return; }
+    const dsel=form.querySelector('select'), div=dsel?dsel.value:''; if(DIVS.indexOf(div)>=0) divSel=div;
+    if(!name){ LB.msg='Please type a nickname or initials.'; LB.msgc='bad'; nick=''; lbRender(); return; }
+    if(DIVS.indexOf(div)<0){ LB.msg='Please select your division.'; LB.msgc='bad'; nick=name; lbRender(); return; }
     let last=0; try{ last=+localStorage.getItem('ncLastSave')||0; }catch(e){}
     if(Date.now()-last<15000){ LB.msg='Please wait a few seconds before saving again.'; LB.msgc='bad'; nick=name; lbRender(); return; }
     LB.busy=true; nick=name; lbRender();
     try{
-      await lbSave(name,G.score);
+      await lbSave(name,G.score,div);
       G.saved=true; LB.mine={nick:name,score:G.score}; LB.msg='';
-      try{ localStorage.setItem('ncNick',name); localStorage.setItem('ncLastSave',String(Date.now())); }catch(e){}
+      try{ localStorage.setItem('ncNick',name); localStorage.setItem('ncDiv',div); localStorage.setItem('ncLastSave',String(Date.now())); }catch(e){}
       LB.busy=false; airResume(); gameRender(); await lbLoad();
     }catch(err){
       LB.busy=false; LB.msgc='bad';
-      LB.msg=(err&&err.status===404)?'The Top 10 is not set up yet. Please contact HCT.':'The score could not be saved. Please try again.';
+      LB.msg=(err&&err.status===404)?'The Top 10 is not set up yet. Please contact HCT.':(err&&err.status===400)?'Division is not set up in the database yet. Please contact HCT.':'The score could not be saved. Please try again.';
       lbRender();
     }
   }
@@ -1493,7 +1522,7 @@
       if(G.pol) ch.push('<span class="chip">Police car <b>\u00d7'+G.pol+'</b></span>');
       if(G.red) ch.push('<span class="chip g">Red criminal car <b>\u00d7'+G.red+'</b></span>');
       if(G.blk) ch.push('<span class="chip g">Black criminal car <b>\u00d7'+G.blk+'</b></span>');
-      if(G.dod) ch.push('<span class="chip g">Bank Truck ($$) <b>\u00d7'+G.dod+'</b></span>');
+      if(G.dod) ch.push('<span class="chip g">CAAT Van <b>\u00d7'+G.dod+'</b></span>');
       if(G.haz) ch.push('<span class="chip r">Dangerous vehicles <b>\u00d7'+G.haz+'</b></span>');
       if(G.score>0 && !G.saved) ch.push('<button type="button" class="chip sv">Save to Top 10</button>');
       if(ambApi.paused) ch.push('<button type="button" class="chip sv rsp">Play again</button>');
@@ -1520,12 +1549,12 @@
      +row(['police'],'<b>Police car</b><br>Chases the criminal cars and dodges often too','+5')
      +row(['crook'],'<b>Red criminal car</b><br>Chased by police, 3× faster, dodges often','+15')
      +row(['black'],'<b>Black criminal car</b><br>Fastest of all, about every 20 seconds, dodges often','+25')
-     +row(['bank'],'<b>Bank Truck ($$)</b><br>Green truck that dodges your mouse most of the time, so be quick','+50')
+     +row(['bank'],'<b>CAAT Van</b><br>White van that glows white and dodges your mouse most of the time, so be quick','+50')
      +'</div><h3>Dangerous vehicles</h3><div class="rows">'
      +row(['rad'],'<b>Radioactive truck</b> (yellow)','−30','bad')
      +row(['expl'],'<b>Explosive truck</b> (red)','−30','bad')
      +row(['bio'],'<b>Bio hazard truck</b> (green)','−30','bad')
-     +'</div><p class="note">Dangerous trucks glow black and are released about every 6 to 8 seconds. The round is paused while this window is open. Turn Live City off to hide the game.</p>'
+     +'</div><p class="note">Dangerous trucks glow black and are released about every 6 to 8 seconds. The CAAT Van glows white and is safe to click. The round is paused while this window is open. Turn Live City off to hide the game.</p>'
      +'<div class="acts"><button type="button" class="go">Got it</button></div></div>';
   }
   function hpOpen(opener){
@@ -1671,7 +1700,7 @@
     /* police chase: moves 3x faster than the average car (average traffic speed is about 106 px/s) */
     let busy=false, fast=false;
     ambApi.pace=f=>{ fast=f; if(f){ [7000,20000,34000].forEach(ms=>setTimeout(()=>{ if(live()&&G.on) chase(); },ms)); } };
-    /* lane pairs: a criminal car (or the Bank Truck) can swerve into the other lane of its direction, so the whole pair is kept clear */
+    /* lane pairs: a criminal car (or the CAAT Van) can swerve into the other lane of its direction, so the whole pair is kept clear */
     const pairs=[[lanes[0],lanes[1]],[lanes[2],lanes[3]]];
     const freePair=()=>{ const c=pairs.filter(p=>!p[0].chase&&!p[1].chase); if(!c.length) return null; c.sort((a,b)=>(a[0].n+a[1].n)-(b[0].n+b[1].n)); return c[0]; };
     const swapTo=(el,idx)=>{ el._cur=idx; el.style.transition='top .2s ease-out'; el.style.top=el._tops[idx]+'px'; };
@@ -1760,7 +1789,7 @@
     };
     const planBlack=relT=>{ clearTimeout(blackT); blackT=setTimeout(()=>blackCar(relT),Math.max(0,relT-7000-performance.now())); };
     planBlack(performance.now()+12000);
-    /* Bank Truck ($$): green, same speed as the red criminal car, dodges the mouse about 85% of the time, 50 points */
+    /* CAAT Van: white with blue CAAT lettering, same speed as the red criminal car, dodges the mouse about 85% of the time, 50 points */
     const dodgeCar=relT=>{
       if(!live()) return;
       if(busy||ambApi.paused){ dodgeT=setTimeout(()=>dodgeCar(relT),500); return; }
@@ -1776,7 +1805,7 @@
         const el=document.createElement('div'); el.className='veh bank dodger'; el.style.top=lane.top+'px'; el.innerHTML=VART.bank(); el.dataset.pts=50;
         if(lane.dir<0) el.firstChild.style.transform='scaleX(-1)';
         el.insertAdjacentHTML('beforeend','<b class="pts">50 pts!</b>'); addHL(el,lane.dir);
-        el.classList.add('glow'); el.style.setProperty('--hz','#4fbf7a'); el.insertAdjacentHTML('afterbegin','<i class="aura"></i>');   /* glows like the dangerous trucks, to confuse players */
+        el.classList.add('glow'); el.style.setProperty('--hz','#ffffff'); el.insertAdjacentHTML('afterbegin','<i class="aura"></i>');   /* CAAT Van glows white and is safe to click */
         road.appendChild(el);
         const an=el.animate([{transform:'translateX('+from+'px)'},{transform:'translateX('+to+'px)'}],{duration:dur,easing:'linear',fill:'both'});
         an.onfinish=()=>{ el.remove(); release(pr); };

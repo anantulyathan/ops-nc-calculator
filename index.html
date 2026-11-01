@@ -1859,7 +1859,10 @@
     };
     /* police chase: moves 3x faster than the average car (average traffic speed is about 106 px/s) */
     let busy=false, fast=false;
-    ambApi.pace=f=>{ fast=f; if(f){ [7000,20000,34000].forEach(ms=>setTimeout(()=>{ if(live()&&G.on) chase(); },ms)); } };
+    let vanRound=0;
+    ambApi.pace=f=>{ fast=f; vanRound++; if(f){ [7000,20000,34000,47000].forEach(ms=>setTimeout(()=>{ if(live()&&G.on) chase(); },ms));
+      const rid=vanRound, t1=6000+rnd()*22000, t2=t1+14000+rnd()*(52000-t1-14000);   /* two vans at random times, at least 14 s apart */
+      [t1,t2].forEach(ms=>setTimeout(()=>{ if(live()&&G.on) dodgeCar(rid); },ms)); } };
     /* lane pairs: a criminal car (or the CAAT Van) can swerve into the other lane of its direction, so the whole pair is kept clear */
     const pairs=[[lanes[0],lanes[1]],[lanes[2],lanes[3]]];
     const freePair=()=>{ const c=pairs.filter(p=>!p[0].chase&&!p[1].chase); if(!c.length) return null; c.sort((a,b)=>(a[0].n+a[1].n)-(b[0].n+b[1].n)); return c[0]; };
@@ -1951,16 +1954,17 @@
     };
     const planBlack=relT=>{ clearTimeout(blackT); blackT=setTimeout(()=>blackCar(relT),Math.max(0,relT-7000-performance.now())); };
     planBlack(performance.now()+12000);
-    /* CAAT Van: white with blue CAAT lettering, same speed as the red criminal car, dodges the mouse about 85% of the time, 50 points */
-    const dodgeCar=relT=>{
-      if(!live()) return;
-      if(busy||ambApi.paused){ dodgeT=setTimeout(()=>dodgeCar(relT),500); return; }
-      const W=road.clientWidth; if(W<200){ planDodge(relT+24000); return; }
-      const pr=freePair(); if(!pr){ dodgeT=setTimeout(()=>dodgeCar(relT),500); return; }
+    /* CAAT Van: white with blue CAAT lettering, same speed as the red criminal car, dodges the mouse about 85% of the time, 50 points.
+       At most 2 vans per round, at random times (see ambApi.pace); none while idle. */
+    const dodgeCar=rid=>{
+      if(!live()||rid!==vanRound||!G.on) return;   /* only during the round it was planned for */
+      if(busy||ambApi.paused){ dodgeT=setTimeout(()=>dodgeCar(rid),500); return; }
+      const W=road.clientWidth; if(W<200) return;
+      const pr=freePair(); if(!pr){ dodgeT=setTimeout(()=>dodgeCar(rid),500); return; }
       busy=true; pr[0].chase=pr[1].chase=true;
       const go=()=>{
-        if(!live()) return;
-        if(pr[0].n>0||pr[1].n>0||document.hidden||ambApi.paused||performance.now()<relT){ setTimeout(go,200); return; }
+        if(!live()||rid!==vanRound||!G.on){ pr[0].chase=pr[1].chase=false; busy=false; return; }
+        if(pr[0].n>0||pr[1].n>0||document.hidden||ambApi.paused){ setTimeout(go,200); return; }
         const cur=Math.floor(rnd()*2), lane=pr[cur];
         const speed=106*3, dur=(W+2*(VW+8))/speed*1000, a=-(VW+8), z=W+8, from=lane.dir>0?a:z, to=lane.dir>0?z:a;
         pr[0].n=pr[1].n=1;
@@ -1972,12 +1976,9 @@
         const an=el.animate([{transform:'translateX('+from+'px)'},{transform:'translateX('+to+'px)'}],{duration:dur,easing:'linear',fill:'both'});
         an.onfinish=()=>{ el.remove(); release(pr); };
         arm(el,pr,cur,.85);
-        planDodge(performance.now()+24000);
       };
       go();
     };
-    const planDodge=relT=>{ clearTimeout(dodgeT); dodgeT=setTimeout(()=>dodgeCar(relT),Math.max(0,relT-6000-performance.now())); };
-    planDodge(performance.now()+16000);
     /* hazard trucks: at least one released every 8 seconds */
     const HZT=['rad','expl','bio']; let hzPending=false;
     const hzGo=()=>{

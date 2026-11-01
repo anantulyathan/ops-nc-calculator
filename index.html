@@ -378,6 +378,11 @@
         font:500 11px/1.3 'Inter',system-ui,sans-serif;color:#cfe3f5;background:rgba(10,24,44,.5);pointer-events:none}
   .chip.rsp{background:linear-gradient(180deg,#e9f4fb,#b9d3ea);color:#1a2e4a}
   .lbs{padding:8px 12px;border:0;border-radius:9px;cursor:pointer;font:600 12.5px 'Inter',system-ui,sans-serif;color:#cfe3f5;background:rgba(255,255,255,.12)}
+  .bst{position:absolute;width:0;height:0;z-index:7;pointer-events:none}
+  .bst i{position:absolute;left:0;top:0;border-radius:50%;pointer-events:none;will-change:transform,opacity}
+  .bst .bsr{width:30px;height:30px;margin:-15px 0 0 -15px;border:2px solid rgba(143,230,218,.9)}
+  .bst .bsf{width:56px;height:56px;margin:-28px 0 0 -28px;background:radial-gradient(circle,rgba(255,255,255,.95),rgba(143,230,218,.5) 45%,rgba(143,230,218,0) 70%)}
+  .pp.van{font-size:19px;color:#fff;text-shadow:0 0 9px #8fe6da,0 1px 4px rgba(0,0,0,.7)}
   .veh.hit svg{animation:vpop .4s ease-out forwards}
   @keyframes vpop{to{transform:scale(1.7);opacity:0}}
   .veh.hit .pts{opacity:0}
@@ -413,6 +418,11 @@
   @keyframes ring2{from{transform:scale(1);opacity:.9}to{transform:scale(1.9);opacity:0}}
   .rs{display:flex;align-items:center;gap:16px;padding:7px 16px;border-radius:16px;text-align:left;
       background:linear-gradient(135deg,rgba(10,24,44,.82),rgba(30,77,140,.5));box-shadow:inset 0 0 0 1px rgba(143,230,218,.5),0 6px 20px rgba(0,0,0,.35);animation:rsin .45s ease-out}
+  .ghud .rs{position:relative;padding-right:36px}
+  .rsx{position:absolute;top:5px;right:6px;width:22px;height:22px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#e6f0fa;font:600 15px/1 'Inter',system-ui,sans-serif;cursor:pointer;pointer-events:auto}
+  .rsx::before{content:"";position:absolute;inset:-11px}
+  .rsx:hover{background:rgba(255,255,255,.3)}
+  .rsx:focus-visible{outline:2px solid #8fe6da;outline-offset:2px}
   @keyframes rsin{from{opacity:0;transform:translateY(6px) scale(.96)}}
   .rbig{text-align:center;min-width:66px;padding-right:14px;border-right:1px solid rgba(143,230,218,.25)}
   .rbig small{display:block;font-size:9px;letter-spacing:.16em;color:#8fe6da}
@@ -450,7 +460,9 @@
   @media print{ .ambrow{display:none!important} }
   .ambrow{gap:8px;flex-wrap:wrap}
   .lbt{color:#fff}
-  .noamb .lbt,.noamb .lb,.noamb .hpt{display:none}
+  .noamb .lbt,.noamb .lb,.noamb .hpt,.noamb .snd{display:none}
+  .snd{color:#fff}
+  .snd[aria-pressed="true"]{background:rgba(59,191,176,.28);box-shadow:inset 0 0 0 1px rgba(143,230,218,.5)}
   .hpt{color:#fff}
   .lb{margin:12px auto 0;max-width:520px;padding:12px 14px 14px;border-radius:14px;color:#dbe7f5;background:linear-gradient(145deg,rgba(10,24,44,.7),rgba(30,77,140,.38));box-shadow:inset 0 0 0 1px rgba(143,230,218,.32),0 6px 20px rgba(0,0,0,.25)}
   .lb[hidden]{display:none}
@@ -983,6 +995,9 @@
   };
   const VORDER=['plane','jet','ufo','heli','car','balloon'];
   let amb=false;
+  /* game sound: off by default, made in code with the Web Audio API (no sound files); the choice is remembered on this device */
+  let snd=false; try{ snd=localStorage.getItem('ncSnd')==='1'; }catch(e){}
+  const sndInner=()=>'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/>'+(snd?'<path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>':'<path d="m16 9 5 6M21 9l-5 6"/>')+'</svg>'+(snd?'Sound on':'Sound off');
   const ambInner=()=>amb?'<i class="sw" aria-hidden="true"></i>Turn off Live City':'<span class="pi" aria-hidden="true"><svg viewBox="0 0 10 10"><polygon points="1,0 10,5 1,10"/></svg></span>Turn on : Live City';
   let veh='plane';
   try{ const sv=localStorage.getItem('ncVeh'); if(sv && VEH[sv] && sv!=='santa') veh=sv; }catch(e){}
@@ -1072,7 +1087,7 @@
         <div class="${planeCls} v-${vid}${V.wide?' wide':''}${vid==='santa'?' santa':''}${planeTried?' known':''} go" role="button" tabindex="0" aria-label="${V.label} take-off" title="Take off" style="left:${pct}%;--to:${pct}%;--ax:${ax}">${ART[vid]}<i class="beam"></i><i class="jet"></i><i class="beacon"></i></div>${showHint?`<span class="phint" style="${pct>80?'right:calc('+(100-pct)+'% + '+(Math.round(V.w*axv/100)+14)+'px)':'left:calc('+pct+'% + '+(Math.round(V.w*(100-axv)/100)+14)+'px)'}">${vid==='santa'?'Tap Santa':'Tap me'}</span>`:''}${mk}</div><div class="banner" aria-live="polite"></div><div class="road" aria-hidden="true"><i class="rd"></i><i class="tr tt"></i><i class="tr tb"></i></div><div class="ghud idle" aria-hidden="true"></div></div>
       <p class="hint">Tap a card or a gate to see its date. Tap ${V.hint} for a surprise.</p>
       <div class="vsel" role="group" aria-label="Select aircraft"><span class="vl">Select Aircraft</span>${VORDER.map(id=>`<button type="button" class="vb" data-v="${id}" aria-pressed="${veh===id}" aria-label="${VEH[id].label}" title="${VEH[id].label}">${ART[id]}</button>`).join('')}</div>
-      <div class="ambrow"><button type="button" class="ambt lcity${amb?'':' lure'}" role="switch" aria-checked="${amb}" title="Show or hide the live city: traffic, birds and shooting stars">${ambInner()}</button><button type="button" class="ambt lbt" aria-expanded="${LB.open}" title="Show the Top 10 scores"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>Top 10</button><button type="button" class="ambt hpt" aria-haspopup="dialog" title="How to play the traffic game"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.2.9-1.2 1.8M12 16.6v.1"/></svg>How to play</button></div>
+      <div class="ambrow"><button type="button" class="ambt lcity${amb?'':' lure'}" role="switch" aria-checked="${amb}" title="Show or hide the live city: traffic, birds and shooting stars">${ambInner()}</button><button type="button" class="ambt lbt" aria-expanded="${LB.open}" title="Show the Top 10 scores"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>Top 10</button><button type="button" class="ambt hpt" aria-haspopup="dialog" title="How to play the traffic game"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.2.9-1.2 1.8M12 16.6v.1"/></svg>How to play</button><button type="button" class="ambt snd" aria-pressed="${snd}" title="Turn the game sound on or off">${sndInner()}</button></div>
       <div class="lb" id="lb" hidden></div>
       <div class="dp" id="dp" aria-live="polite"></div>
     </section>`;
@@ -1535,7 +1550,7 @@
       if(G.score>0 && !G.saved) ch.push('<button type="button" class="chip sv">Save to Top 10</button>');
       if(ambApi.paused) ch.push('<button type="button" class="chip sv rsp">Play again</button>');
       ch.push(G.nb?'<span class="chip nb">New best!</span>':'<span class="chip">Best <b>'+G.best+'</b></span>');
-      h.innerHTML='<div class="rs"><div class="rbig'+(G.score<0?' neg':'')+'"><small>TIME\u2019S UP</small><b>'+G.score+'</b><span>points</span></div><div class="rside"><div class="chips">'+ch.join('')+'</div>'+(ambApi.paused?'':'<div class="again">'+PLAY+'Tap a vehicle to play again</div>')+'</div></div>';
+      h.innerHTML='<div class="rs"><button type="button" class="rsx" aria-label="Close score summary">\u00d7</button><div class="rbig'+(G.score<0?' neg':'')+'"><small>TIME\u2019S UP</small><b>'+G.score+'</b><span>points</span></div><div class="rside"><div class="chips">'+ch.join('')+'</div>'+(ambApi.paused?'':'<div class="again">'+PLAY+'Tap a vehicle to play again</div>')+'</div></div>';
     }
     else {
       h.className='ghud idle';
@@ -1636,7 +1651,7 @@
     if(!amb||ambApi.paused||v.classList.contains('hit')) return;
     if(v.dataset.hz){
       v.classList.add('hit');
-      const bm=document.createElement('span'); bm.className='boom'; v.appendChild(bm);
+      const bm=document.createElement('span'); bm.className='boom'; v.appendChild(bm); SFX.boom();
       const rd=v.parentNode; rd.classList.remove('shake'); void rd.offsetWidth; rd.classList.add('shake');
       const pn=document.createElement('span'); pn.className='pp neg'; pn.textContent=G.on?'-30 pts':'Boom!'; v.appendChild(pn);
       if(G.on){ G.score-=30; G.haz++; G.negUntil=performance.now()+700; }
@@ -1649,14 +1664,64 @@
     }
     if(!G.on) gameStart();
     const pts=+v.dataset.pts||5; G.score+=pts; if(v.classList.contains('dodger')) G.dod++; else if(pts===15) G.red++; else if(pts===25) G.blk++; else if(v.classList.contains('bus')) G.bus++; else if(v.classList.contains('police')) G.pol++; else G.cars++; v.classList.add('hit');
-    const pp=document.createElement('span'); pp.className='pp'+(pts>5?' big':''); pp.textContent='+'+pts+(pts>5?'!':''); v.appendChild(pp);
+    burst(v,v.classList.contains('dodger')); if(v.classList.contains('dodger')) SFX.van(); else SFX.pop();
+    const pp=document.createElement('span'); pp.className='pp'+(pts>5?' big':'')+(v.classList.contains('dodger')?' van':''); pp.textContent='+'+pts+(pts>5?'!':''); v.appendChild(pp);
     if(v._fol&&v._fol.length) v._fol.forEach(wonder);
     gameRender();
   }
-  /* the chased car is gone: the police car slows down by 25% and shows a thought bubble */
+  /* sounds: simple tones made by the browser (Web Audio). Only play when Sound is on. */
+  let AC=null;
+  function sndCtx(){
+    if(!snd) return null;
+    try{ if(!AC){ const C=window.AudioContext||window.webkitAudioContext; if(!C) return null; AC=new C(); } if(AC.state==='suspended') AC.resume(); return AC; }catch(e){ return null; }
+  }
+  function tone(c,type,f0,f1,t0,dur,vol){
+    const o=c.createOscillator(), g=c.createGain(); o.type=type; o.frequency.setValueAtTime(f0,t0); if(f1!==f0) o.frequency.exponentialRampToValueAtTime(f1,t0+dur);
+    g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(vol,t0+.012); g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+    o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0+dur+.03);
+  }
+  const SFX={
+    tick:n=>{ const c=sndCtx(); if(!c) return; const f=[0,660,740,830][n]||700; tone(c,'sine',f,f,c.currentTime,.09,.12); },
+    pop:()=>{ const c=sndCtx(); if(!c) return; tone(c,'sine',620,300,c.currentTime,.1,.14); },
+    van:()=>{ const c=sndCtx(); if(!c) return; const t=c.currentTime; [523,659,784,1047].forEach((f,i)=>tone(c,'triangle',f,f,t+i*.07,.2,.12)); tone(c,'sine',1568,2093,t+.3,.28,.06); },
+    huh:()=>{ const c=sndCtx(); if(!c) return; const t=c.currentTime; tone(c,'triangle',340,240,t,.17,.13); tone(c,'triangle',250,560,t+.22,.3,.13); tone(c,'sine',500,500,t+.56,.05,.05); },
+    boom:()=>{ const c=sndCtx(); if(!c) return; const t=c.currentTime; tone(c,'sawtooth',120,40,t,.4,.16); tone(c,'sine',70,35,t,.45,.18); },
+    lift:(vid,sec)=>{
+      const c=sndCtx(); if(!c) return; const t=c.currentTime, d=Math.max(1,Math.min(3,sec||2));
+      const o=c.createOscillator(), f=c.createBiquadFilter(), g=c.createGain();
+      o.type=vid==='ufo'?'sine':'sawtooth'; o.frequency.setValueAtTime(vid==='ufo'?220:80,t); o.frequency.exponentialRampToValueAtTime(vid==='ufo'?900:vid==='jet'?420:300,t+d);
+      f.type='lowpass'; f.frequency.setValueAtTime(300,t); f.frequency.exponentialRampToValueAtTime(1800,t+d);
+      g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(.09,t+.25); g.gain.linearRampToValueAtTime(.09,t+d*.7); g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+      o.connect(f); f.connect(g); g.connect(c.destination); o.start(t); o.stop(t+d+.05);
+    }
+  };
+  /* small burst when a vehicle is caught; a bigger one for the CAAT Van */
+  function burst(v,big){
+    if(reduceMotion()) return;
+    const rd=v.parentNode; if(!rd||!rd.getBoundingClientRect||!v.animate) return;
+    const R=rd.getBoundingClientRect(), r=v.getBoundingClientRect();
+    const box=document.createElement('div'); box.className='bst'; box.setAttribute('aria-hidden','true');
+    box.style.left=(r.left+r.width/2-R.left)+'px'; box.style.top=(r.top+r.height/2-R.top)+'px';
+    const cols=big?['#ffffff','#8fe6da','#3bbfb0','#8bb8ec','#f6d98a']:['#ffffff','#8fe6da','#cfe3f5'];
+    const n=big?20:9, rad=big?64:28, dur=big?900:520;
+    const add=(cls,kf,opt)=>{ const i=document.createElement('i'); if(cls) i.className=cls; box.appendChild(i); i.animate(kf,opt); return i; };
+    add('bsr',[{transform:'scale(.3)',opacity:.9},{transform:'scale('+(big?3.2:1.8)+')',opacity:0}],{duration:dur,easing:'ease-out',fill:'forwards'});
+    if(big){
+      add('bsf',[{transform:'scale(.4)',opacity:1},{transform:'scale(1.8)',opacity:0}],{duration:520,easing:'ease-out',fill:'forwards'});
+      add('bsr',[{transform:'scale(.2)',opacity:0},{transform:'scale(.2)',opacity:.8,offset:.01},{transform:'scale(2.2)',opacity:0}],{duration:dur,delay:140,easing:'ease-out',fill:'forwards'});
+    }
+    for(let k=0;k<n;k++){
+      const a=(k/n)*Math.PI*2+Math.random()*.5, d=rad*(.55+Math.random()*.6), sz=big?3+Math.random()*3:2+Math.random()*2;
+      const i=add('',[{transform:'translate(0,0) scale(1)',opacity:1},{transform:'translate('+(Math.cos(a)*d).toFixed(1)+'px,'+(Math.sin(a)*d*.8+(big?8:4)).toFixed(1)+'px) scale(.1)',opacity:0}],{duration:dur*(.7+Math.random()*.3),easing:'cubic-bezier(.2,.8,.3,1)',fill:'forwards'});
+      i.style.width=i.style.height=sz.toFixed(1)+'px'; i.style.margin=(-sz/2).toFixed(1)+'px 0 0 '+(-sz/2).toFixed(1)+'px'; i.style.background=cols[k%cols.length];
+      if(big) i.style.boxShadow='0 0 6px '+cols[k%cols.length];
+    }
+    rd.appendChild(box); setTimeout(()=>box.remove(),dur+400);
+  }
+  /* the chased car is gone: the police car slows down (speed x 0.70) and shows a thought bubble */
   function wonder(f){
-    if(!f||!f.isConnected||f._wond||f.classList.contains('hit')) return; f._wond=true;
-    if(f._an){ try{ f._an.playbackRate=.75; }catch(e){} }
+    if(!f||!f.isConnected||f._wond||f.classList.contains('hit')) return; f._wond=true; SFX.huh();
+    if(f._an){ try{ f._an.playbackRate=.70; }catch(e){} }
     const old=f.querySelector('.cb'); if(old) old.remove();
     const b=document.createElement('span'); b.className='cb tb'; b.textContent='??'; b.setAttribute('aria-hidden','true'); f.appendChild(b);
   }
@@ -1922,7 +1987,7 @@
     let n=3;
     const tick=()=>{
       if(token!==flight || !plane.isConnected) return;
-      if(n>0){ ban.textContent='Take-off in '+n; ban.classList.add('show'); n--; setTimeout(tick,1000); }
+      if(n>0){ ban.textContent='Take-off in '+n; ban.classList.add('show'); SFX.tick(n); n--; setTimeout(tick,750); }   /* countdown 25% faster: 750 ms per count (3 s to 2.25 s) */
       else { ban.classList.remove('show'); flying=false; launch(plane); }
     };
     tick(); trackTag(0);
@@ -1955,7 +2020,7 @@
     if(!vert){ const N=8; puffs(rw,Array.from({length:N},(_,i)=>x0+(roll-x0)*(i/(N-1))),Array.from({length:N},(_,i)=>D*ro*Math.sqrt(i/(N-1)))); }
     else if(vid==='heli'){ puffs(rw,[x0-46,x0-30,x0-14,x0+2,x0+18,x0+34,x0+50,x0-38,x0+42],[0,60,120,180,240,300,360,420,480].map(t=>t*SLOW/.75)); }
 
-    say(TX[0]); compliment();
+    say(TX[0]); compliment(); SFX.lift(vid,D/1000);
     at(D*.48,()=>say(TX[1]));
     at(D*.74,()=>say(TX[2]));
     if(vid==='jet') at(D*.5,()=>ring(rw,roll+W*.02));
@@ -1996,10 +2061,12 @@
   outEl.addEventListener('click',e=>{
     const vb=e.target.closest('.vb'); if(vb){ setVeh(vb.getAttribute('data-v')); return; }
     const vh=e.target.closest('.veh'); if(vh){ hitVeh(vh); return; }
+    if(e.target.closest('.rsx')){ LB.open=false; LB.msg=''; lbRender(); airResume(); gameReset(); return; }
     if(e.target.closest('.rsp')){ airResume(); return; }
     if(e.target.closest('.lbs')){ LB.open=false; LB.msg=''; airResume(); return; }
     if(e.target.closest('.lbx')){ LB.open=false; lbRender(); if(ambApi.paused) airResume(); return; }
     if(e.target.closest('.lbr')){ lbLoad(); return; }
+    const sb=e.target.closest('.snd'); if(sb){ snd=!snd; try{ localStorage.setItem('ncSnd',snd?'1':'0'); }catch(x){} sb.setAttribute('aria-pressed',snd?'true':'false'); sb.innerHTML=sndInner(); if(snd){ SFX.tick(2); } return; }
     const hb=e.target.closest('.hpt'); if(hb){ hpOpen(hb); return; }
     const lt=e.target.closest('.lbt'); if(lt){ LB.open=!LB.open; LB.msg=''; lbRender(); if(LB.open&&LB.state!=='loading') lbLoad(); return; }
     const sv=e.target.closest('.sv'); if(sv){ LB.open=true; LB.msg=''; lbRender(); if(LB.state==='idle') lbLoad(); const f=outEl.querySelector('.lbf input'); if(f){ f.focus(); } const pn=outEl.querySelector('#lb'); if(pn&&pn.scrollIntoView) pn.scrollIntoView({block:'nearest',behavior:'smooth'}); return; }

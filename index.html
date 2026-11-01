@@ -473,10 +473,13 @@
   .lbl .dt{font-size:11px;color:#8fa4bf}
   .lbf select{min-width:132px;padding:8px 10px;border:0;border-radius:9px;font:500 13px 'Inter',system-ui,sans-serif;color:#1a2e4a;background:#f4f8fb;box-shadow:inset 0 0 0 1px rgba(143,230,218,.5)}
   .lbf select:focus-visible{outline:2px solid #8fe6da;outline-offset:1px}
-  .lbd{display:grid;gap:5px;margin:2px 0 10px;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(143,230,218,.25)}
-  .lbd p{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;font-size:12.5px;color:#dbe7f5}
-  .lbd b{font:600 14px 'JetBrains Mono',ui-monospace,monospace;color:#f6d98a}
-  .lbd small{font-size:11px;color:#8fa4bf}
+  .lbd{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:2px 0 10px}
+  .lbd p{margin:0;min-width:0;display:flex;flex-direction:column;gap:3px;padding:10px 10px 9px;border-radius:12px;color:#fff;box-shadow:0 6px 16px rgba(10,24,44,.35),inset 0 1px 0 rgba(255,255,255,.22)}
+  .lbd .da{background:linear-gradient(145deg,#2563a8,#1e4d8c)}
+  .lbd .dh{background:linear-gradient(145deg,#1f7f74,#175f58)}
+  .lbd span{font-size:11px;font-weight:600;letter-spacing:.02em;color:#fff;opacity:.95}
+  .lbd b{font:700 21px/1.15 'JetBrains Mono',ui-monospace,monospace;color:#fff;overflow-wrap:anywhere}
+  .lbd small{font-size:10.5px;line-height:1.3;color:#fff;opacity:.9}
   .lbl .dv{font-style:normal;margin-left:6px;padding:1px 6px;border-radius:7px;font:600 10px 'JetBrains Mono',ui-monospace,monospace;color:#cfe3f5;background:rgba(255,255,255,.12)}
   .chip.sv{pointer-events:auto;cursor:pointer;border:0;font:700 10px 'Inter',system-ui,sans-serif;color:#06302b;background:linear-gradient(180deg,#a9f1e6,#3bbfb0)}
   @media print{ .lb,.lbt,.hpt,.hpo{display:none!important} }
@@ -1344,7 +1347,7 @@
   /* live airport: service road + birds */
   const wh=(x,r)=>'<circle cx="'+x+'" cy="'+(r?23.5:23)+'" r="'+(r||4)+'" fill="#0b1220"/><circle cx="'+x+'" cy="'+(r?23.5:23)+'" r="1.5" fill="#8fa4bf"/>';
   const sv=b=>'<svg viewBox="0 0 60 28" aria-hidden="true">'+b+'</svg>';
-  const HZ={rad:'#e8b923',expl:'#d9503f',bio:'#4fbf7a'};
+  const HZ={rad:'#e8b923',expl:'#d9503f',bio:'#1b1f27'};
   const hz=(c,sign)=>'<rect x="3" y="19" width="55" height="2" fill="#3a4a5f"/><rect x="3" y="3" width="42" height="17" rx="3" fill="'+c+'"/><rect x="3" y="3" width="42" height="3" rx="1.5" fill="#fff" opacity=".18"/>'+sign+'<rect x="46" y="9" width="12" height="12" rx="2" fill="#f4f8fb"/><path d="M49 10.5h6v4h-6z" fill="#6f93bd"/><rect x="46" y="17" width="12" height="2" fill="'+c+'"/>'+wh(12)+wh(26)+wh(37)+wh(52);
   const CARC=['#2f6fba','#5b6f8a','#e2e8f0','#2a9d8f','#9a5b5b','#c4cbd5','#3b4b63','#6b8f71','#d9d2c3'];
   const VART={
@@ -1363,7 +1366,7 @@
     crook:()=>sv('<rect x="4" y="14" width="52" height="7" rx="2.5" fill="#c0392b"/><polygon points="16,14 23,8.5 40,8.5 48,14" fill="#c0392b"/><polygon points="24.5,9.8 29.5,9.8 30.5,13.2 21.5,13.2" fill="#1b2a3d"/><polygon points="32,9.8 38.5,9.8 43.5,13.2 32.6,13.2" fill="#1b2a3d"/><rect x="4" y="10.5" width="8" height="1.6" fill="#8a2c1f"/><rect x="6" y="12" width="1.4" height="2.2" fill="#8a2c1f"/><rect x="53" y="15.5" width="3.5" height="2" fill="#e8c96a"/><rect x="4" y="16" width="2.5" height="2" fill="#ffb3a8"/><rect x="4" y="18.4" width="52" height="1.2" fill="#f4f8fb" opacity=".6"/>'+wh(16,3.8)+wh(44,3.8)),
     rad:()=>sv(hz('#e8b923','<g fill="#1b2a3d"><path d="M24 13V6.4A6.6 6.6 0 0 1 29.7 9.7z"/><path d="M24 13V6.4A6.6 6.6 0 0 1 29.7 9.7z" transform="rotate(120 24 13)"/><path d="M24 13V6.4A6.6 6.6 0 0 1 29.7 9.7z" transform="rotate(240 24 13)"/><circle cx="24" cy="13" r="1.8"/></g>')),
     expl:()=>sv(hz('#c0392b','<polygon points="24,5.5 26.2,10 31,8.6 29.6,13.2 34,15 29.6,16.6 30.6,21 26,19.4 24,22 22,19.4 17.4,21 18.4,16.6 14,15 18.4,13.2 17,8.6 21.8,10" transform="translate(0,-1.8) scale(1)" fill="#f4f8fb"/><circle cx="24" cy="13" r="2.6" fill="#c0392b"/>')),
-    bio:()=>sv(hz('#3f9a5b','<g fill="none" stroke="#f4f8fb" stroke-width="1.5"><circle cx="24" cy="9.4" r="3.6"/><circle cx="20.9" cy="14.8" r="3.6"/><circle cx="27.1" cy="14.8" r="3.6"/></g><circle cx="24" cy="12.4" r="1.6" fill="#f4f8fb"/>')),
+    bio:()=>sv(hz('#14171c','<rect x="3" y="3" width="42" height="17" rx="3" fill="none" stroke="#7d8da3" stroke-width=".9"/><g fill="#f4f8fb"><circle cx="24" cy="10.2" r="4.7"/><rect x="21.2" y="13.2" width="5.6" height="3.6" rx="1"/></g><g fill="#14171c"><circle cx="21.9" cy="10.4" r="1.4"/><circle cx="26.1" cy="10.4" r="1.4"/><path d="M24 12.2l-.9 1.5h1.8z"/><rect x="22.6" y="15" width=".7" height="1.8"/><rect x="24.7" y="15" width=".7" height="1.8"/></g>')),
     bus:()=>sv('<rect x="3" y="7" width="53" height="15" rx="3" fill="#e2e8f0"/><path d="M7 10h7v5H7zM16 10h7v5h-7zM25 10h7v5h-7zM34 10h7v5h-7z" fill="#2f6fba"/><rect x="45" y="10" width="8" height="10" rx="1" fill="#5b6f8a"/><rect x="3" y="17" width="53" height="2" fill="#2a9d8f"/>'+wh(14)+wh(46)),
     follow:()=>sv('<rect x="14" y="12" width="38" height="9" rx="3" fill="#e8b923"/><path d="M22 12v-3q0-2 2-2h14q2 0 3 2l3 3z" fill="#e8b923"/><path d="M25 9h7v3h-7zM34 9h6l2 3h-8z" fill="#1b2a3d"/><rect x="27" y="3" width="12" height="4" rx="1" fill="#1a2e4a"/><rect x="29" y="4.6" width="8" height="1" fill="#f4f8fb"/><path d="M16 16h4v2h-4zM24 16h4v2h-4zM32 16h4v2h-4zM40 16h4v2h-4zM48 16h3v2h-3z" fill="#1a2e4a"/><rect x="48" y="9" width="4" height="2.4" rx="1" class="sir"/>'+wh(21)+wh(45))
   };
@@ -1465,7 +1468,7 @@
     if(LB.state==='loading') h+='<p class="lbn">Loading the scores\u2026</p>';
     else if(LB.state==='err') h+='<p class="lbn bad">The scores could not be loaded. Please check the connection.</p><button type="button" class="lbr">Try again</button>';
     else if(LB.state==='ok'){
-      if(LB.stats){ const S=LB.stats; h+='<div class="lbd"><p>Top Division (Average) <b>= '+(S.avg?esc(S.avg.d):'not yet')+'</b><small>'+(S.avg?'highest average, '+S.avg.v+' pts ('+S.avg.n+' scores)':'highest average needs 3 saved scores per division')+'</small></p><p>Top Division (Highest Score) <b>= '+esc(S.best.d)+'</b><small>best single score, '+S.best.v+' pts</small></p></div>'; }
+      if(LB.stats){ const S=LB.stats; h+='<div class="lbd"><p class="da"><span>Top Division (Average)</span><b>'+(S.avg?esc(S.avg.d):'not yet')+'</b><small>'+(S.avg?'highest average, '+S.avg.v+' pts ('+S.avg.n+' scores)':'highest average needs 3 saved scores per division')+'</small></p><p class="dh"><span>Top Division (Highest Score)</span><b>'+esc(S.best.d)+'</b><small>best single score, '+S.best.v+' pts</small></p></div>'; }
       if(!LB.rows.length) h+='<p class="lbn">No scores yet. Be the first!</p>';
       else{
         let mineDone=false;
@@ -1554,7 +1557,7 @@
      +'</div><h3>Dangerous vehicles</h3><div class="rows">'
      +row(['rad'],'<b>Radioactive truck</b> (yellow)','−30','bad')
      +row(['expl'],'<b>Explosive truck</b> (red)','−30','bad')
-     +row(['bio'],'<b>Bio hazard truck</b> (green)','−30','bad')
+     +row(['bio'],'<b>Deadly Waste truck</b> (black, skull)','−30','bad')
      +'</div><p class="note">Dangerous trucks glow black and are released about every 6 to 8 seconds. The CAAT Van glows white and is safe to click. The round is paused while this window is open. Turn Live City off to hide the game.</p>'
      +'<div class="acts"><button type="button" class="go">Got it</button></div></div>';
   }

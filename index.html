@@ -347,6 +347,7 @@
   .veh{pointer-events:auto;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
   .veh::before{content:"";position:absolute;inset:-8px -4px}
   .cb{position:absolute;left:50%;bottom:calc(100% + 3px);z-index:5;white-space:nowrap;padding:3px 8px;border-radius:9px;font:600 9.5px/1.25 'Inter',system-ui,sans-serif;color:#1a2e4a;background:#f4f8fb;box-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none;animation:cb 5.6s ease both}
+  .cb.long{white-space:normal;width:132px;text-align:center}
   .cb::after{content:"";position:absolute;left:50%;top:100%;margin-left:-4px;border:4px solid transparent;border-top-color:#f4f8fb}
   .veh.crook .cb{bottom:calc(100% + 17px)}
   @keyframes cb{0%{opacity:0;transform:translate(-50%,6px) scale(.8)}12%{opacity:1;transform:translate(-50%,0) scale(1)}86%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-5px)}}
@@ -1464,7 +1465,7 @@
     if(LB.state==='loading') h+='<p class="lbn">Loading the scores\u2026</p>';
     else if(LB.state==='err') h+='<p class="lbn bad">The scores could not be loaded. Please check the connection.</p><button type="button" class="lbr">Try again</button>';
     else if(LB.state==='ok'){
-      if(LB.stats){ const S=LB.stats; h+='<div class="lbd"><p>Top Division <b>= '+(S.avg?esc(S.avg.d):'not yet')+'</b><small>'+(S.avg?'highest average, '+S.avg.v+' pts ('+S.avg.n+' scores)':'highest average needs 3 saved scores per division')+'</small></p><p>Top Division <b>= '+esc(S.best.d)+'</b><small>best single score, '+S.best.v+' pts</small></p></div>'; }
+      if(LB.stats){ const S=LB.stats; h+='<div class="lbd"><p>Top Division (Average) <b>= '+(S.avg?esc(S.avg.d):'not yet')+'</b><small>'+(S.avg?'highest average, '+S.avg.v+' pts ('+S.avg.n+' scores)':'highest average needs 3 saved scores per division')+'</small></p><p>Top Division (Highest Score) <b>= '+esc(S.best.d)+'</b><small>best single score, '+S.best.v+' pts</small></p></div>'; }
       if(!LB.rows.length) h+='<p class="lbn">No scores yet. Be the first!</p>';
       else{
         let mineDone=false;
@@ -1598,12 +1599,13 @@
     gameRender(); ambApi.pace(true);
   }
   const PRAISE=['Nice take-off!','Wow!','Beautiful take-off!','Smooth climb!','Perfect lift-off!','Textbook departure!','Great rotation!','Safe flight, captain!','Look at it go!','Bravo, pilot!','Clear skies ahead!','Bon voyage!'];
+  const CAATSAY=['Did we check that A/C yet?','Did the wheels retract?','Was that their procedure?','Was the pre-flight walkaround completed?','Is the weight and balance signed off?','Was the briefing carried out before departure?','Was the checklist read in full?','Did the crew follow the standard callouts?','Smooth rotation. Was that by the book?','Is the manual up to date for that procedure?','Good climb profile. Was it flown as published?','Did everyone get a safety briefing?','Nice departure. Let\u2019s confirm it in the records.','Was crew baggage checked?'];
   const XPRAISE=['Merry X-Mas!','Ho ho ho!','Happy holidays, Santa!','All I want for X-Mas is a safe flight!','Jingle all the way!','Beautiful sleigh take-off!','Santa is on his way!','Go, Santa, go!','Season\u2019s greetings!','Fly safe, Santa!','Have a magical X-Mas!','Merry take-off!'];
   function compliment(){
     if(!amb) return;
     const xm=!!(tlState&&tlState.xmas), edge=xm?100:70;
     let left=5+(Math.random()<.5?1:0);   /* 5 or 6 vehicles greet during take-off, in up to 4 rounds as vehicles drive into view */
-    const words=(xm?XPRAISE:PRAISE).slice().sort(()=>Math.random()-.5); let wi=0;
+    const words=(xm?XPRAISE:PRAISE.concat(CAATSAY)).slice().sort(()=>Math.random()-.5); let wi=0;
     const round=k=>{
       if(!amb||left<=0||k>3) return;
       const road=outEl.querySelector('.road'); if(!road) return;
@@ -1615,7 +1617,7 @@
         const v=vs[i], w=words[(wi++)%words.length]; v._greeted=true;
         setTimeout(()=>{
           if(!v.isConnected||!amb||v.querySelector('.cb')) return;
-          const b=document.createElement('span'); b.className='cb'; b.textContent=w; v.appendChild(b);
+          const b=document.createElement('span'); b.className='cb'+(w.length>22?' long':''); b.textContent=w; v.appendChild(b);
           setTimeout(()=>b.remove(),5800);
         },200+i*320+Math.random()*250);
       }

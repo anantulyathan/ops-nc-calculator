@@ -1545,10 +1545,10 @@
     const wc=outEl.querySelector('.wcity'); if(wc) wc.classList.toggle('hid',!!(G.on||G.done));   /* the title makes room for the score panel */
     if(!amb){ h.innerHTML=''; return; }
     if(G.on){
-      const left=Math.max(0,G.end-performance.now()), sec=Math.ceil(left/1000), pct=Math.max(0,Math.min(100,left/450)), tcls=sec<=5?' low':(sec<=10?' warn':'');
-      const el=performance.now()-G.start, ins=el<7000?'<span class="gi" style="opacity:'+(el>6000?((7000-el)/1000).toFixed(2):1)+'">Click on as many cars as possible within 45 seconds!</span>':'';
+      const left=Math.max(0,G.end-performance.now()), sec=Math.ceil(left/1000), pct=Math.max(0,Math.min(100,left/600)), tcls=sec<=5?' low':(sec<=10?' warn':'');
+      const el=performance.now()-G.start, ins=el<7000?'<span class="gi" style="opacity:'+(el>6000?((7000-el)/1000).toFixed(2):1)+'">Click on as many cars as possible within 1 minute!</span>':'';
       h.className='ghud on';
-      h.innerHTML=ins+'<span class="gp'+(performance.now()<G.negUntil?' neg':'')+'"><span class="gsc"><small>SCORE</small><b>'+G.score+'</b></span><span class="gtm'+tcls+'"><small>TIME</small><b>0:'+String(sec).padStart(2,'0')+'</b><span class="tbar"><i style="width:'+pct.toFixed(1)+'%"></i></span></span></span>';
+      h.innerHTML=ins+'<span class="gp'+(performance.now()<G.negUntil?' neg':'')+'"><span class="gsc"><small>SCORE</small><b>'+G.score+'</b></span><span class="gtm'+tcls+'"><small>TIME</small><b>'+Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')+'</b><span class="tbar"><i style="width:'+pct.toFixed(1)+'%"></i></span></span></span>';
     }
     else if(G.done){
       h.className='ghud done';
@@ -1566,7 +1566,7 @@
     }
     else {
       h.className='ghud idle';
-      h.innerHTML='<span class="cta">'+PLAY+'<span>Tap a vehicle to play!<small>Beat the clock in 45 seconds'+(G.best>0?' \u00b7 Best <b>'+G.best+'</b>':'')+'</small></span></span>';
+      h.innerHTML='<span class="cta">'+PLAY+'<span>Tap a vehicle to play!<small>Beat the clock in 1 minute'+(G.best>0?' \u00b7 Best <b>'+G.best+'</b>':'')+'</small></span></span>';
     }
   }
   function gameReset(){ clearInterval(G.t); G.on=false; G.done=false; G.saved=false; G.score=0; G.nb=false; ambApi.pace(false); gameRender(); }
@@ -1576,8 +1576,8 @@
     const ic=(ks,many)=>'<span class="ic'+(many?' many':'')+'" aria-hidden="true">'+ks.map(k=>VART[k]()).join('')+'</span>';
     const row=(ks,txt,pt,cls,many)=>'<div class="hr'+(cls?' '+cls:'')+'">'+ic(ks,many)+'<span class="tx">'+txt+'</span><span class="pt">'+pt+'</span></div>';
     return '<div class="hpc" role="document"><button type="button" class="hx" aria-label="Close">×</button>'
-     +'<h2 id="hpTitle">How to play</h2><p class="why">Just for fun: take 45 seconds to enjoy and de-stress after an audit.</p>'
-     +'<ol><li>Tap or click any vehicle on the road to start a 45-second round.</li><li>Tap as many vehicles as you can. Faster ones score more.</li><li>Keep away from the dangerous trucks. They cost points.</li><li>When time is up, add your name to the Top 10.</li></ol>'
+     +'<h2 id="hpTitle">How to play</h2><p class="why">Just for fun: take 1 minute to enjoy and de-stress after an audit.</p>'
+     +'<ol><li>Tap or click any vehicle on the road to start a 1-minute round.</li><li>Tap as many vehicles as you can. Faster ones score more.</li><li>Keep away from the dangerous trucks. They cost points.</li><li>When time is up, add your name to the Top 10.</li></ol>'
      +'<h3>Points</h3><div class="rows">'
      +row(['sedan','suv','taxi','fire'],'<b>Everyday vehicles</b><br>Sedan, SUV, taxi, fire truck, ambulance, ice cream truck, food truck, baggage truck, fuel truck, follow-me car','+5','',true)
      +row(['bus'],'<b>Passenger bus</b>','+5')
@@ -1620,7 +1620,7 @@
     const o=HP.opener; HP.opener=null; if(o&&o.isConnected){ try{ o.focus(); }catch(e){} }
   }
   function gameStart(){
-    G.on=true; G.done=false; G.saved=false; G.score=0; G.nb=false; G.cars=0; G.bus=0; G.pol=0; G.red=0; G.blk=0; G.dod=0; G.haz=0; G.start=performance.now(); G.end=G.start+45000; clearInterval(G.t);
+    G.on=true; G.done=false; G.saved=false; G.score=0; G.nb=false; G.cars=0; G.bus=0; G.pol=0; G.red=0; G.blk=0; G.dod=0; G.haz=0; G.start=performance.now(); G.end=G.start+60000; clearInterval(G.t);
     G.t=setInterval(()=>{
       if(HP.open) return;
       if(performance.now()>=G.end){

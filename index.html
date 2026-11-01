@@ -1784,10 +1784,11 @@
     b.style.left=x+'px'; b.style.top=Math.max(26,r.top-R.top-6)+'px';
     rd.appendChild(b); setTimeout(()=>b.remove(),2500);
   }
-  /* the chased car is gone: the police car slows down (speed x 0.70) and shows a thought bubble */
+  /* the chased car is gone: the police car slows down (0.30 for 1 s, then 0.70) and shows a thought bubble */
   function wonder(f){
     if(!f||!f.isConnected||f._wond||f.classList.contains('hit')) return; f._wond=true; SFX.huh();
-    if(f._an){ try{ f._an.playbackRate=.70; }catch(e){} }
+    /* 1 second at 0.30 while the ?? shows, then back to driving at 0.70 */
+    if(f._an){ try{ f._an.playbackRate=.30; }catch(e){} setTimeout(()=>{ try{ if(f.isConnected&&f._an) f._an.playbackRate=.70; }catch(e){} },1000); }
     const old=f.querySelector('.cb'); if(old) old.remove();
     const b=document.createElement('span'); b.className='cb tb'; b.textContent='??'; b.setAttribute('aria-hidden','true'); f.appendChild(b);
   }
@@ -1954,7 +1955,7 @@
     };
     const planBlack=relT=>{ clearTimeout(blackT); blackT=setTimeout(()=>blackCar(relT),Math.max(0,relT-7000-performance.now())); };
     planBlack(performance.now()+12000);
-    /* CAAT Van: white with blue CAAT lettering, same speed as the red criminal car, dodges the mouse about 85% of the time, 50 points.
+    /* CAAT Van: white with blue CAAT lettering, same speed as the red criminal car, dodges the mouse about 66% of the time, 50 points.
        At most 2 vans per round, at random times (see ambApi.pace); none while idle. */
     const dodgeCar=rid=>{
       if(!live()||rid!==vanRound||!G.on) return;   /* only during the round it was planned for */
@@ -1975,7 +1976,7 @@
         road.appendChild(el);
         const an=el.animate([{transform:'translateX('+from+'px)'},{transform:'translateX('+to+'px)'}],{duration:dur,easing:'linear',fill:'both'});
         an.onfinish=()=>{ el.remove(); release(pr); };
-        arm(el,pr,cur,.85);
+        arm(el,pr,cur,.66);
       };
       go();
     };

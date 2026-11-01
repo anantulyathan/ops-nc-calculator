@@ -96,7 +96,14 @@
   .tl .today{font-size:13px;color:#9fb3cc;padding:7px 12px;border-radius:20px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
   .tl .today b{color:#6fd6c9;font-weight:600}
 
-  .rwx{position:relative;margin:92px 9px 268px}
+  .rwx{position:relative;margin:92px 9px calc(268px + var(--tg,0px));--tg:48px}
+  /* Welcome title: separates the game from the timeline runway */
+  .wcity{position:absolute;left:0;right:0;top:calc(100% + 34px + var(--tg,0px));height:40px;display:flex;align-items:center;justify-content:flex-start;margin:0;pointer-events:none}
+  .wcity::before{content:"";position:absolute;left:0;right:0;top:-8px;height:1px;background:linear-gradient(90deg,rgba(143,200,255,0),rgba(143,200,255,.4) 18%,rgba(143,200,255,.4) 82%,rgba(143,200,255,0))}
+  .wcity span{max-width:calc(100% - 175px);font:700 clamp(14px,4vw,23px)/1.15 'Inter',system-ui,sans-serif;letter-spacing:.02em;color:#bfdcff;text-shadow:0 0 8px rgba(143,200,255,.55),0 0 20px rgba(143,200,255,.3);transition:opacity .2s}
+  .wcity.hid span{opacity:0}
+  @media(max-width:359px){ .wcity span{max-width:calc(100% - 134px)} }
+  @media print{ .wcity{display:none!important} }
   .rw{position:relative;height:46px;border-radius:9px;
       background:linear-gradient(180deg,#0a1729 0%,#12253f 100%);
       box-shadow:inset 0 0 0 1px rgba(255,255,255,.09),inset 0 2px 6px rgba(0,0,0,.45),0 12px 26px rgba(0,0,0,.35)}
@@ -300,7 +307,7 @@
   .rtag::after{content:"";position:absolute;left:50%;top:100%;width:1px;height:6px;background:rgba(143,230,218,.7)}
   .rtag b{font-weight:500}
   /* live airport */
-  .road{position:absolute;left:-9px;right:-9px;top:calc(100% + 128px);height:92px;pointer-events:none;clip-path:inset(-44px 0 -30px 0)}
+  .road{position:absolute;left:-9px;right:-9px;top:calc(100% + 128px + var(--tg,0px));height:92px;pointer-events:none;clip-path:inset(-44px 0 -30px 0)}
   .tr{position:absolute;left:0;right:0;height:24px;opacity:.5;pointer-events:none;background-repeat:repeat-x;background-position:0 0;background-size:1344px 24px}
 
   .hpo{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:16px;background:rgba(10,24,44,.62);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
@@ -395,7 +402,7 @@
   .pp{position:absolute;left:50%;top:-6px;transform:translateX(-50%);font:700 12px/1 'JetBrains Mono',ui-monospace,monospace;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.7);pointer-events:none;animation:pp .85s ease-out forwards}
   .pp.big{font-size:15px;color:#f6d98a}
   @keyframes pp{to{transform:translate(-50%,-24px);opacity:0}}
-  .ghud{position:absolute;right:0;top:calc(100% + 34px);max-width:64%;display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:2px 10px;min-height:22px;
+  .ghud{position:absolute;right:0;top:calc(100% + 34px + var(--tg,0px));max-width:64%;display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:2px 10px;min-height:22px;
         font:500 11.5px/13px 'Inter',system-ui,sans-serif;color:#b9c8dc;text-align:right;pointer-events:none}
   .ghud b{color:#fff;font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:500}
   .ghud .gh{opacity:.7;font-size:11px}
@@ -442,9 +449,10 @@
   .again{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;color:#8fe6da}
   .again .pi{width:16px;height:16px} .again .pi svg{width:7px;height:7px;margin-left:1px}
   @media(prefers-reduced-motion:reduce){ .cta,.pi::after,.rs{animation:none} }
-  @media(max-width:559px){ .ghud.done .gh,.rs .again{display:none} .ghud{max-width:calc(100% - 96px);font-size:10.5px;line-height:12px} .ghud .gi{font-size:10px} .cta{font-size:11.5px;padding-right:12px} .cta small{display:none} .rs{gap:10px;padding:6px 10px} .rbig{min-width:52px;padding-right:9px} .gp{gap:10px;padding:5px 11px} .road{top:calc(100% + 142px)} .rwx{margin-bottom:284px} .rbig small{white-space:nowrap;font-size:8px;letter-spacing:.1em} .rbig b{font-size:22px} .noamb .rwx{margin-bottom:90px} }
+  @media(max-width:559px){ .ghud.done .gh,.rs .again{display:none} .ghud{max-width:calc(100% - 96px);font-size:10.5px;line-height:12px} .ghud .gi{font-size:10px} .cta{font-size:11.5px;padding-right:12px} .cta small{display:none} .rs{gap:10px;padding:6px 10px} .rbig{min-width:52px;padding-right:9px} .gp{gap:10px;padding:5px 11px} .road{top:calc(100% + 142px + var(--tg,0px))} .rwx{margin-bottom:calc(284px + var(--tg,0px))} .rbig small{white-space:nowrap;font-size:8px;letter-spacing:.1em} .rbig b{font-size:22px} .noamb .rwx{margin-bottom:90px} }
   @media print{ .ghud{display:none!important} }
-  .noamb .rwx{margin-bottom:90px}
+  .noamb .rwx{margin-bottom:90px;--tg:0px}
+  .noamb .wcity{display:none}
   .ambrow{display:flex;justify-content:center;margin-top:10px}
   .ambt{display:inline-flex;align-items:center;gap:8px;padding:5px 12px 5px 6px;border:0;border-radius:20px;cursor:pointer;font:500 11.5px/1 'Inter',system-ui,sans-serif;color:#b9c8dc;background:rgba(255,255,255,.07)}
   .ambt:hover{background:rgba(255,255,255,.14)}
@@ -1087,7 +1095,7 @@
       <div class="rwx"><div class="skyb" aria-hidden="true"></div><div class="rw"><div class="lit go ${pct>=100?'full':''}" style="width:${pct}%;--to:${pct}%"></div><div class="selband"></div><div class="probe"><span class="pt"></span></div>
         <div class="edge top"></div><div class="edge bot"></div><div class="tlight g"></div><div class="tlight r"></div>
         <div class="sm"><span class="t"><b>Issue date</b>${esc(fmt(issue))}</span></div>
-        <div class="${planeCls} v-${vid}${V.wide?' wide':''}${vid==='santa'?' santa':''}${planeTried?' known':''} go" role="button" tabindex="0" aria-label="${V.label} take-off" title="Take off" style="left:${pct}%;--to:${pct}%;--ax:${ax}">${ART[vid]}<i class="beam"></i><i class="jet"></i><i class="beacon"></i></div>${showHint?`<span class="phint" style="${pct>80?'right:calc('+(100-pct)+'% + '+(Math.round(V.w*axv/100)+14)+'px)':'left:calc('+pct+'% + '+(Math.round(V.w*(100-axv)/100)+14)+'px)'}">${vid==='santa'?'Tap Santa':'Tap me'}</span>`:''}${mk}</div><div class="banner" aria-live="polite"></div><div class="road" aria-hidden="true"><i class="rd"></i><i class="tr tt"></i><i class="tr tb"></i></div><div class="ghud idle" aria-hidden="true"></div></div>
+        <div class="${planeCls} v-${vid}${V.wide?' wide':''}${vid==='santa'?' santa':''}${planeTried?' known':''} go" role="button" tabindex="0" aria-label="${V.label} take-off" title="Take off" style="left:${pct}%;--to:${pct}%;--ax:${ax}">${ART[vid]}<i class="beam"></i><i class="jet"></i><i class="beacon"></i></div>${showHint?`<span class="phint" style="${pct>80?'right:calc('+(100-pct)+'% + '+(Math.round(V.w*axv/100)+14)+'px)':'left:calc('+pct+'% + '+(Math.round(V.w*(100-axv)/100)+14)+'px)'}">${vid==='santa'?'Tap Santa':'Tap me'}</span>`:''}${mk}</div><p class="wcity"><span>Welcome to OPS City!</span></p><div class="banner" aria-live="polite"></div><div class="road" aria-hidden="true"><i class="rd"></i><i class="tr tt"></i><i class="tr tb"></i></div><div class="ghud idle" aria-hidden="true"></div></div>
       <p class="hint">Tap a card or a gate to see its date. Tap ${V.hint} for a surprise.</p>
       <div class="vsel" role="group" aria-label="Select aircraft"><span class="vl">Select Aircraft</span>${VORDER.map(id=>`<button type="button" class="vb" data-v="${id}" aria-pressed="${veh===id}" aria-label="${VEH[id].label}" title="${VEH[id].label}">${ART[id]}</button>`).join('')}</div>
       <div class="ambrow"><button type="button" class="ambt lcity${amb?'':' lure'}" role="switch" aria-checked="${amb}" title="Show or hide the live city: traffic, birds and shooting stars">${ambInner()}</button><button type="button" class="ambt lbt" aria-expanded="${LB.open}" title="Show the Top 10 scores"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>Top 10</button><button type="button" class="ambt hpt" aria-haspopup="dialog" title="How to play the traffic game"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.2.9-1.2 1.8M12 16.6v.1"/></svg>How to play</button><button type="button" class="ambt snd" role="switch" aria-checked="${snd}" title="Turn the game sound and music on or off">${sndInner()}</button></div>
@@ -1534,6 +1542,7 @@
   const PLAY='<i class="pi" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M1 0.5v9L9.5 5z"/></svg></i>';
   function gameRender(){
     const h=outEl.querySelector('.ghud'); if(!h) return;
+    const wc=outEl.querySelector('.wcity'); if(wc) wc.classList.toggle('hid',!!(G.on||G.done));   /* the title makes room for the score panel */
     if(!amb){ h.innerHTML=''; return; }
     if(G.on){
       const left=Math.max(0,G.end-performance.now()), sec=Math.ceil(left/1000), pct=Math.max(0,Math.min(100,left/450)), tcls=sec<=5?' low':(sec<=10?' warn':'');
